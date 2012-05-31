@@ -7,6 +7,12 @@ package DBIx::Nesting;
 use strict;
 use warnings;
 
+sub compile {
+  my ($self, $meta) = @_;
+
+  return eval $self->_emit_code($meta);
+}
+
 sub _emit_code {
   my ($self, $meta) = @_;
   $meta = $self->_expand_meta_with_defaults($meta);

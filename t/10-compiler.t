@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Deep;
+use Test::Fatal;
 use DBIx::Nesting;
 use DBIx::Nesting::t::Utils;
 
@@ -20,7 +21,13 @@ subtest 'meta utils' => sub {
 subtest 'code emiter' => sub {
   my $u = sub { $n->_emit_code(@_) };
   for my $t (@{ $tc->{_emit_code} }) {
-    is($u->($t->{meta}{data}), $t->{expected}{body}, $t->{msg}{desc});
+    my $desc = $t->{msg}{desc};
+    my $meta = $t->{meta}{data};
+    is($u->($meta), $t->{expected}{body}, "$desc ok");
+
+    my $cb;
+    is(exception { $cb = $n->compile($meta) }, undef, "... compiles ok too");
+    is(ref($cb), 'CODE', '... outputs CodeRef');
   }
 };
 
