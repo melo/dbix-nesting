@@ -48,11 +48,11 @@ sub _expand_meta_with_defaults {
   ## Prefix to use
   my $prefix = '';
   if (exists $meta->{prefix}) {
-    $prefix = $meta->{prefix}.'_';
+    $prefix = $meta->{prefix} . '_';
     $prefix =~ s/#/$id/g;
 
     $cm{prefix} = $prefix;
-  };
+  }
 
   ## Expand fields with prefix
   my %fm;
