@@ -16,10 +16,16 @@ sub _expand_meta_with_defaults {
     my $i = 1;
     $idx = \$i;
   }
-  $cm{id} = $$idx++;
+  my $id = $cm{id} = $$idx++;
 
   ## Prefix to use
-  my $prefix = exists $meta->{prefix} ? "$meta->{prefix}_" : '';
+  my $prefix = '';
+  if (exists $meta->{prefix}) {
+    $prefix = $meta->{prefix}.'_';
+    $prefix =~ s/#/$id/g;
+
+    $cm{prefix} = $prefix;
+  };
 
   ## Expand fields with prefix
   my %fm;

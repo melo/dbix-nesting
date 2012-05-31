@@ -128,16 +128,34 @@ __DATA__
 
 
 > for _expand_meta_with_defaults
-> msg simple meta, single col set, no joins, explicit pk, extra field meta
+> msg simple meta, single col set, no joins, explicit pk, extra field meta, explicit prefix
 >+ meta
 
-    { fields => ['k', n => { label => 'N' }], pk => 'k', prefix => 'p1' }
+    { fields => ['k', n => { label => 'N' }], pk => 'k', prefix => 'p' }
+
+>+ expected
+
+    { fields => [{ name => 'k', col => 'p_k' }, { name => 'n', col => 'p_n', label => 'N' },],
+      pk     => [{ name => 'k', col => 'p_k' }],
+      id     => 1,
+      prefix => 'p_',
+    }
+
+> end
+
+
+> for _expand_meta_with_defaults
+> msg simple meta, single col set, no joins, explicit pk, extra field meta, prefix template
+>+ meta
+
+    { fields => ['k', n => { label => 'N' }], pk => 'k', prefix => 'p#' }
 
 >+ expected
 
     { fields => [{ name => 'k', col => 'p1_k' }, { name => 'n', col => 'p1_n', label => 'N' },],
       pk     => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
+      prefix => 'p1_',
     }
 
 > end
