@@ -25,13 +25,10 @@ sub _emit_block {
   $p .= "'$_->{name}'=>\$r->{'$_->{col}'}," for @$flds;
   $p .= '};';
 
-  ## Top level is special
-  if ($id == 1) {
-    unless ($nest) {    ## shortcut: no nesting? just push result, done
-      $p .= 'push @res,$o1;';
-      return $p;
-    }
-  }
+  ## Special case for extremely simple queries
+  return $p.'push @res,$o1;' if $id == 1 && !$nest;
+
+  ...
 }
 
 sub _expand_meta_with_defaults {
