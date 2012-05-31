@@ -16,6 +16,13 @@ subtest 'meta utils' => sub {
   }
 };
 
+subtest 'code emiter' => sub {
+  my $u = sub { $n->_emit_code(@_) };
+  for my $t (@{ $tc->{_emit_code} }) {
+    is($u->($t->{meta}{data}), $t->{expected}{body}, $t->{msg}{desc});
+  }
+};
+
 
 done_testing();
 
@@ -157,6 +164,21 @@ __DATA__
       id     => 1,
       prefix => 'p1_',
     }
+
+> end
+
+
+### Emit code test cases
+
+> for _emit_code
+> msg simple meta, single col set
+>+ meta
+
+    { fields => [qw(k n)] }
+
+> expected
+
+    sub {my(%seen, @res);for my $r (@{$_[0]}) {$o1={'k'=>$r->{'k'},'n'=>$r->{'n'},};push @res,$o1;} return \@res;}
 
 > end
 

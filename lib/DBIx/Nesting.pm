@@ -7,6 +7,33 @@ package DBIx::Nesting;
 use strict;
 use warnings;
 
+sub _emit_code {
+  my ($self, $meta) = @_;
+  $meta = $self->_expand_meta_with_defaults($meta);
+
+  my $p = $self->_emit_block($meta);
+
+  return 'sub {my(%seen, @res);for my $r (@{$_[0]}) {' . $p . '} return \@res;}';
+}
+
+sub _emit_block {
+  my ($self, $m) = @_;
+  my ($id, $flds, $pk, $nest) = @{$m}{qw(id fields pk nest)};
+
+  ## decl field hash for this meta
+  my $p = '$o' . $id . '={';
+  $p .= "'$_->{name}'=>\$r->{'$_->{col}'}," for @$flds;
+  $p .= '};';
+
+  ## Top level is special
+  if ($id == 1) {
+    unless ($nest) {    ## shortcut: no nesting? just push result, done
+      $p .= 'push @res,$o1;';
+      return $p;
+    }
+  }
+}
+
 sub _expand_meta_with_defaults {
   my ($self, $meta, $idx) = @_;
   my %cm;
