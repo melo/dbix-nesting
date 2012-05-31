@@ -53,6 +53,9 @@ sub _expand_meta_with_defaults {
 
     $cm{prefix} = $prefix;
   }
+  elsif ($id > 1 || exists $meta->{nest}) {
+    $cm{prefix} = $prefix = "p${id}_";
+  }
 
   ## Expand fields with prefix
   my %fm;
@@ -74,6 +77,13 @@ sub _expand_meta_with_defaults {
     $pk = [map { exists $fm{$_} ? $fm{$_} : die "Pk '$_' not found in field list" } @$pk];
   }
   $cm{pk} = $pk;
+
+  # Cleanup nested meta
+  if (exists $meta->{nest}) {
+    my $n = $meta->{nest};
+    ## The sort is not required, but gives stability to the output, easier to test :)
+    $cm{nest}{$_} = $self->_expand_meta_with_defaults($n->{$_}, $idx) for sort keys %$n;
+  }
 
   return \%cm;
 }

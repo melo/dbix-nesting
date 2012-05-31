@@ -64,7 +64,7 @@ sub _read_next_test_case {
 
 __DATA__
 
-### Meta utils tests
+### _expand_meta_with_defaults basic tests
 
 > for _expand_meta_with_defaults
 > msg simple meta, single col set, no joins, implicit pk
@@ -163,6 +163,120 @@ __DATA__
       pk     => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
+    }
+
+> end
+
+
+### _expand_meta_with_defaults complex
+
+> for _expand_meta_with_defaults
+> msg two col set, 1:M relation, explicit pk, automatic prefix
+>+ meta
+
+    { fields => [qw(k n)],
+      pk     => 'k',
+      nest   => {
+        s => {
+          fields => [qw(k t)],
+          pk     => 'k',
+        },
+      },
+    }
+
+>+ expected
+
+    { fields => [{ name => 'k', col => 'p1_k' }, { name => 'n', col => 'p1_n' }],
+      pk     => [{ name => 'k', col => 'p1_k' }],
+      id     => 1,
+      prefix => 'p1_',
+      nest   => {
+        s => {
+          fields => [{ name => 'k', col => 'p2_k' }, { name => 't', col => 'p2_t' }],
+          pk     => [{ name => 'k', col => 'p2_k' }],
+          id     => 2,
+          prefix => 'p2_',
+        },
+      },
+    }
+
+> end
+
+
+> for _expand_meta_with_defaults
+> msg several col set, 1:M relations, several levels, explicit pk, automatic prefix
+>+ meta
+
+    { fields => [qw(k n)],
+      pk     => 'k',
+      nest   => {
+        s => {
+          fields => [qw(k s)],
+          pk     => 'k',
+        },
+        t => {
+          fields => [qw(tid t)],
+          pk     => 'tid',
+          nest   => {
+            z => {
+              fields => [qw(zid z)],
+              nest   => { w => { fields => [qw(wid w)] } },
+            },
+            x => { fields => [qw(xid x)] },
+            y => { fields => [qw(yid y)] },
+          },
+        },
+      },
+    }
+
+>+ expected
+
+    { fields => [{ name => 'k', col => 'p1_k' }, { name => 'n', col => 'p1_n' }],
+      pk     => [{ name => 'k', col => 'p1_k' }],
+      id     => 1,
+      prefix => 'p1_',
+      nest   => {
+        s => {
+          fields => [{ name => 'k', col => 'p2_k' }, { name => 's', col => 'p2_s' }],
+          pk     => [{ name => 'k', col => 'p2_k' }],
+          id     => 2,
+          prefix => 'p2_',
+        },
+        t => {
+          fields => [{ name => 'tid', col => 'p3_tid' }, { name => 't', col => 'p3_t' }],
+          pk     => [{ name => 'tid', col => 'p3_tid' }],
+          id     => 3,
+          prefix => 'p3_',
+          nest   => {
+            x => {
+              fields => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
+              pk     => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
+              id     => 4,
+              prefix => 'p4_',
+            },
+            y => {
+              fields => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
+              pk     => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
+              id     => 5,
+              prefix => 'p5_',
+            },
+            z => {
+              fields => [{ name => 'zid', col => 'p6_zid' }, { name => 'z', col => 'p6_z' }],
+              pk     => [{ name => 'zid', col => 'p6_zid' }, { name => 'z', col => 'p6_z' }],
+              id     => 6,
+              prefix => 'p6_',
+              nest   => {
+                w => {
+                  fields => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
+                  pk     => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
+                  id     => 7,
+                  prefix => 'p7_',
+                },
+              },
+            },
+          },
+        },
+      },
     }
 
 > end
