@@ -76,6 +76,7 @@ sub _expand_meta_with_defaults {
   $cm{pk} = $pk;
 
   # Cleanup nested meta
+  $cm{nest} = {};
   if (exists $meta->{nest}) {
     my $n = $meta->{nest};
     ## The sort is not required, but gives stability to the output, easier to test :)

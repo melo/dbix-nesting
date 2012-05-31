@@ -77,6 +77,7 @@ __DATA__
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n' }],
       pk     => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n' }],
       id     => 1,
+      nest   => {},
     },
 
 > end
@@ -93,6 +94,7 @@ __DATA__
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       pk     => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       id     => 1,
+      nest   => {},
     }
 
 > end
@@ -109,6 +111,7 @@ __DATA__
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       pk     => [{ name => 'k', col => 'k' }],
       id     => 1,
+      nest   => {},
     }
 
 > end
@@ -129,6 +132,7 @@ __DATA__
       ],
       pk => [{ name => 'k', col => 'k' }, { name => 's', col => 's' }],
       id => 1,
+      nest   => {},
     }
 
 > end
@@ -146,6 +150,7 @@ __DATA__
       pk     => [{ name => 'k', col => 'p_k' }],
       id     => 1,
       prefix => 'p_',
+      nest   => {},
     }
 
 > end
@@ -163,6 +168,7 @@ __DATA__
       pk     => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
+      nest   => {},
     }
 
 > end
@@ -196,6 +202,7 @@ __DATA__
           pk     => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
+          nest   => {},
         },
       },
     }
@@ -241,6 +248,7 @@ __DATA__
           pk     => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
+          nest   => {},
         },
         t => {
           fields => [{ name => 'tid', col => 'p3_tid' }, { name => 't', col => 'p3_t' }],
@@ -253,12 +261,14 @@ __DATA__
               pk     => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
               id     => 4,
               prefix => 'p4_',
+              nest   => {},
             },
             y => {
               fields => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
               pk     => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
               id     => 5,
               prefix => 'p5_',
+              nest   => {},
             },
             z => {
               fields => [{ name => 'zid', col => 'p6_zid' }, { name => 'z', col => 'p6_z' }],
@@ -271,6 +281,7 @@ __DATA__
                   pk     => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
                   id     => 7,
                   prefix => 'p7_',
+                  nest   => {},
                 },
               },
             },
