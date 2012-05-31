@@ -325,3 +325,172 @@ __DATA__
 > end
 
 
+> for _emit_code
+> msg single col set, explicit prefix and pk
+>+ meta
+
+    { fields => [qw(k n)], prefix => 'x', pk => 'n' }
+
+> expected
+
+    sub {\
+      my(%seen, @res);\
+      for my $r (@{$_[0]}) {\
+        my $o1; \
+        my $s1 = $seen{o1}{$r->{'x_n'}}||= {}; \
+        unless (%$s1) {\
+          push @res, $o1 = $s1->{o} = {\
+            'k'=>$r->{'x_k'},\
+            'n'=>$r->{'x_n'},\
+          };\
+        } \
+        $o1 = $s1->{o};\
+      } \
+      return \@res;\
+  }
+
+> end
+
+
+> for _emit_code
+> msg double col set, explicit pk
+>+ meta
+
+    { fields => [qw(k n)], pk => 'k', nest => { o => { fields => [qw(k o)] } } }
+
+> expected
+
+    sub {\
+      my(%seen, @res);\
+      for my $r (@{$_[0]}) {\
+        my $o1; \
+        my $s1 = $seen{o1}{$r->{'p1_k'}}||= {}; \
+        unless (%$s1) {\
+          push @res, $o1 = $s1->{o} = {\
+            'k'=>$r->{'p1_k'},\
+            'n'=>$r->{'p1_n'},\
+          };\
+        } \
+        $o1 = $s1->{o};\
+        my $o2; \
+        my $s2 = $s1->{o2}{$r->{'p2_k'}}{$r->{'p2_o'}}||= {}; \
+        unless (%$s2) {\
+          push @{$o1->{'o'}}, $o2 = $s2->{o} = {\
+            'k'=>$r->{'p2_k'},\
+            'o'=>$r->{'p2_o'},\
+          };\
+        } \
+        $o2 = $s2->{o};\
+      } \
+      return \@res;\
+  }
+
+> end
+
+
+> for _emit_code
+> msg complex multi-nested meta
+>+ meta
+
+    { fields => [qw(k n)],
+      pk     => 'k',
+      nest   => {
+        s => {
+          fields => [qw(k s)],
+          pk     => 'k',
+        },
+        t => {
+          fields => [qw(tid t)],
+          pk     => 'tid',
+          nest   => {
+            z => {
+              fields => [qw(zid z)],
+              nest   => { w => { fields => [qw(wid w)] } },
+            },
+            x => { fields => [qw(xid x)] },
+            y => { fields => [qw(yid y)] },
+          },
+        },
+      },
+    }
+
+
+> expected
+
+    sub {\
+      my(%seen, @res);\
+      for my $r (@{$_[0]}) {\
+        my $o1; \
+        my $s1 = $seen{o1}{$r->{'p1_k'}}||= {}; \
+        unless (%$s1) {\
+          push @res, $o1 = $s1->{o} = {\
+            'k'=>$r->{'p1_k'},\
+            'n'=>$r->{'p1_n'},\
+          };\
+        } \
+        $o1 = $s1->{o};\
+        \
+        my $o2; \
+        my $s2 = $s1->{o2}{$r->{'p2_k'}}||= {}; \
+        unless (%$s2) {\
+          push @{$o1->{'s'}}, $o2 = $s2->{o} = {\
+            'k'=>$r->{'p2_k'},\
+            's'=>$r->{'p2_s'},\
+          };\
+        } \
+        $o2 = $s2->{o};\
+        \
+        my $o3; \
+        my $s3 = $s1->{o3}{$r->{'p3_tid'}}||= {}; \
+        unless (%$s3) {\
+          push @{$o1->{'t'}}, $o3 = $s3->{o} = {\
+            'tid'=>$r->{'p3_tid'},\
+            't'=>$r->{'p3_t'},\
+          };\
+        } \
+        $o3 = $s3->{o};\
+        \
+        my $o4; \
+        my $s4 = $s3->{o4}{$r->{'p4_xid'}}{$r->{'p4_x'}}||= {}; \
+        unless (%$s4) {\
+          push @{$o3->{'x'}}, $o4 = $s4->{o} = {\
+            'xid'=>$r->{'p4_xid'},\
+            'x'=>$r->{'p4_x'},\
+          };\
+        } \
+        $o4 = $s4->{o};\
+        \
+        my $o5; \
+        my $s5 = $s3->{o5}{$r->{'p5_yid'}}{$r->{'p5_y'}}||= {}; \
+        unless (%$s5) {\
+          push @{$o3->{'y'}}, $o5 = $s5->{o} = {\
+            'yid'=>$r->{'p5_yid'},\
+            'y'=>$r->{'p5_y'},\
+          };\
+        } \
+        $o5 = $s5->{o};\
+        \
+        my $o6; \
+        my $s6 = $s3->{o6}{$r->{'p6_zid'}}{$r->{'p6_z'}}||= {}; \
+        unless (%$s6) {\
+          push @{$o3->{'z'}}, $o6 = $s6->{o} = {\
+            'zid'=>$r->{'p6_zid'},\
+            'z'=>$r->{'p6_z'},\
+          };\
+        } \
+        $o6 = $s6->{o};\
+        \
+        my $o7; \
+        my $s7 = $s6->{o7}{$r->{'p7_wid'}}{$r->{'p7_w'}}||= {}; \
+        unless (%$s7) {\
+          push @{$o6->{'w'}}, $o7 = $s7->{o} = {\
+            'wid'=>$r->{'p7_wid'},\
+            'w'=>$r->{'p7_w'},\
+          };\
+        } \
+        $o7 = $s7->{o};\
+      } \
+      return \@res;\
+    }
+
+> end

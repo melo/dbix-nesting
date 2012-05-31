@@ -11,24 +11,35 @@ sub _emit_code {
   my ($self, $meta) = @_;
   $meta = $self->_expand_meta_with_defaults($meta);
 
-  my $p = $self->_emit_block($meta);
+  my $p = $self->_emit_meta_block($meta);
 
   return 'sub {my(%seen, @res);for my $r (@{$_[0]}) {' . $p . '} return \@res;}';
 }
 
-sub _emit_block {
-  my ($self, $m) = @_;
-  my ($id, $flds, $pk, $nest) = @{$m}{qw(id fields pk nest)};
+sub _emit_meta_block {
+  my ($self, $meta, $p_o_var, $p_s_var) = @_;
+  $p_o_var = '@res'  unless $p_o_var;
+  $p_s_var = '$seen' unless $p_s_var;
 
-  ## decl field hash for this meta
-  my $p = '$o' . $id . '={';
+  my ($id, $flds, $pk, $nest) = @{$meta}{qw(id fields pk nest)};
+  my $o_var = "\$o$id";
+  my $s_var = "\$s$id";
+
+  ## Preamble: decl o_var, fetch seen data for this block
+  my $p = "my $o_var; my $s_var = $p_s_var\{o$id}";
+  $p .= "{\$r->{'$_->{col}'}}" for @$pk;
+  $p .= "||= {}; unless (\%$s_var) {";
+
+  ## per relation-type manipulation: 1:m only for now
+  $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
+  $p .= "push $p_o_var, $o_var = $s_var\->{o} = {";
   $p .= "'$_->{name}'=>\$r->{'$_->{col}'}," for @$flds;
-  $p .= '};';
+  $p .= "};} $o_var = $s_var\->{o};";
 
-  ## Special case for extremely simple queries
-  return $p.'push @res,$o1;' if $id == 1 && !$nest;
+  ## Nesting...
+  $p .= $self->_emit_meta_block($nest->{$_}, "$o_var\->{'$_'}", "$s_var\->") for sort keys %$nest;
 
-  ...
+  return $p;
 }
 
 sub _expand_meta_with_defaults {
