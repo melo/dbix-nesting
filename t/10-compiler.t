@@ -5,9 +5,10 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use DBIx::Nesting;
+use DBIx::Nesting::t::Utils;
 
 my $n  = 'DBIx::Nesting';
-my $tc = _read_all_test_cases();
+my $tc = read_all_test_cases(\*DATA);
 
 subtest 'meta utils' => sub {
   my $u = sub { $n->_expand_meta_with_defaults(@_) };    ## shortcut
@@ -26,44 +27,8 @@ subtest 'code emiter' => sub {
 
 done_testing();
 
-
-##################
-# Test case loader
-
-sub _read_all_test_cases {
-  my %test_cases;
-
-  while (my $tc = _read_next_test_case()) {
-    push @{ $test_cases{ $tc->{for}{desc} } }, $tc;
-  }
-
-  return \%test_cases;
-}
-
-sub _read_next_test_case {
-  my %tc;
-
-  my ($cf, $e);
-  while (<DATA>) {
-    last if /^>+\s+end\s*$/;
-    $cf = $2, $tc{$cf}{perl} = $1, $tc{$cf}{desc} = $3, next if /^>+(\+)?\s+(\w+)(?:\s+(.+))?\s*$/;
-    $tc{$cf}{body} .= $_, next if $cf;
-    next if /^\s+$/ && !$cf;
-    next if /^#/    && !$cf;
-
-    die "Unparsed line $_";
-  }
-
-  return unless %tc;
-
-  for my $f (grep { exists $tc{$_}{body} } keys %tc) {
-    $tc{$f}{body} =~ s/^\s+|\s+$//g;
-    $tc{$f}{body} =~ s/\\\s*\n\s*//gs;
-  }
-  $tc{$_}{data} = eval $tc{$_}{body} for grep { $tc{$_}{perl} } keys %tc;
-
-  return \%tc;
-}
+###########################################
+# Test data
 
 __DATA__
 
