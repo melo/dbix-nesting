@@ -56,7 +56,10 @@ sub _read_next_test_case {
 
   return unless %tc;
 
-  $tc{$_}{body} =~ s/^\s+|\s+$//g for grep { exists $tc{$_}{body} } keys %tc;
+  for my $f (grep { exists $tc{$_}{body} } keys %tc) {
+    $tc{$f}{body} =~ s/^\s+|\s+$//g;
+    $tc{$f}{body} =~ s/\\\s*\n\s*//gs;
+  }
   $tc{$_}{data} = eval $tc{$_}{body} for grep { $tc{$_}{perl} } keys %tc;
 
   return \%tc;
@@ -293,7 +296,7 @@ __DATA__
 > end
 
 
-### Emit code test cases
+### Emit simple code test cases
 
 > for _emit_code
 > msg simple meta, single col set
@@ -303,7 +306,21 @@ __DATA__
 
 > expected
 
-    sub {my(%seen, @res);for my $r (@{$_[0]}) {$o1={'k'=>$r->{'k'},'n'=>$r->{'n'},};push @res,$o1;} return \@res;}
+    sub {\
+      my(%seen, @res);\
+      for my $r (@{$_[0]}) {\
+        my $o1; \
+        my $s1 = $seen{o1}{$r->{'k'}}{$r->{'n'}}||= {}; \
+        unless (%$s1) {\
+          push @res, $o1 = $s1->{o} = {\
+            'k'=>$r->{'k'},\
+            'n'=>$r->{'n'},\
+          };\
+        } \
+        $o1 = $s1->{o};\
+      } \
+      return \@res;\
+    }
 
 > end
 
