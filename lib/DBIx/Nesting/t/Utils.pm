@@ -40,7 +40,10 @@ sub _read_next_test_case {
     $tc{$f}{body} =~ s/^\s+|\s+$//g;
     $tc{$f}{body} =~ s/\\\s*\n\s*//gs;
   }
-  $tc{$_}{data} = eval $tc{$_}{body} for grep { $tc{$_}{perl} } keys %tc;
+  for my $f (grep { $tc{$_}{perl} } keys %tc) {
+    $tc{$f}{data} = eval $tc{$f}{body};
+    die "While parsing $tc{msg}{desc} for $tc{for}{desc}: $@" if $@;
+  }
 
   return \%tc;
 }
