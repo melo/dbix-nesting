@@ -51,7 +51,7 @@ __DATA__
 >+ expected
 
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n' }],
-      pk     => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n' }],
+      key    => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n' }],
       id     => 1,
       nest   => {},
     },
@@ -68,7 +68,7 @@ __DATA__
 >+ expected
 
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
-      pk     => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
+      key    => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       id     => 1,
       nest   => {},
     }
@@ -80,12 +80,12 @@ __DATA__
 > msg simple meta, single col set, no joins, explicit pk, extra field meta
 >+ meta
 
-    { fields => ['k', n => { label => 'N' }], pk => 'k' }
+    { fields => ['k', n => { label => 'N' }], key => 'k' }
 
 >+ expected
 
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
-      pk     => [{ name => 'k', col => 'k' }],
+      key    => [{ name => 'k', col => 'k' }],
       id     => 1,
       nest   => {},
     }
@@ -97,7 +97,7 @@ __DATA__
 > msg simple meta, single col set, no joins, explicit multi-col pk, extra field meta
 >+ meta
 
-    { fields => ['k', n => { label => 'N' }, 's'], pk => [qw(k s)] }
+    { fields => ['k', n => { label => 'N' }, 's'], key => [qw(k s)] }
 
 >+ expected
 
@@ -106,9 +106,9 @@ __DATA__
         { name => 'n', col => 'n', label => 'N' },
         { name => 's', col => 's' },
       ],
-      pk => [{ name => 'k', col => 'k' }, { name => 's', col => 's' }],
-      id => 1,
-      nest   => {},
+      key  => [{ name => 'k', col => 'k' }, { name => 's', col => 's' }],
+      id   => 1,
+      nest => {},
     }
 
 > end
@@ -118,12 +118,12 @@ __DATA__
 > msg simple meta, single col set, no joins, explicit pk, extra field meta, explicit prefix
 >+ meta
 
-    { fields => ['k', n => { label => 'N' }], pk => 'k', prefix => 'p' }
+    { fields => ['k', n => { label => 'N' }], key => 'k', prefix => 'p' }
 
 >+ expected
 
     { fields => [{ name => 'k', col => 'p_k' }, { name => 'n', col => 'p_n', label => 'N' },],
-      pk     => [{ name => 'k', col => 'p_k' }],
+      key    => [{ name => 'k', col => 'p_k' }],
       id     => 1,
       prefix => 'p_',
       nest   => {},
@@ -136,11 +136,11 @@ __DATA__
 > msg simple meta, single col set, no fields, explicit pk
 >+ meta
 
-    {pk => 'k'}
+    { key => 'k' }
 
 >+ expected
 
-    { pk     => [{name => 'k', col => 'p1_k'}],
+    { key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
       nest   => {},
@@ -169,7 +169,7 @@ __DATA__
 > msg simple meta, single col set, no fields, no explicit pk
 >+ meta
 
-    {nest => {x => {}}}
+    { nest => { x => {} } }
 
 >+ expected
 
@@ -194,11 +194,11 @@ __DATA__
 >+ meta
 
     { fields => [qw(k n)],
-      pk     => 'k',
+      key    => 'k',
       nest   => {
         s => {
           fields => [qw(k t)],
-          pk     => 'k',
+          key    => 'k',
         },
       },
     }
@@ -206,13 +206,13 @@ __DATA__
 >+ expected
 
     { fields => [{ name => 'k', col => 'p1_k' }, { name => 'n', col => 'p1_n' }],
-      pk     => [{ name => 'k', col => 'p1_k' }],
+      key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
       nest   => {
         s => {
           fields => [{ name => 'k', col => 'p2_k' }, { name => 't', col => 'p2_t' }],
-          pk     => [{ name => 'k', col => 'p2_k' }],
+          key    => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
           nest   => {},
@@ -228,15 +228,15 @@ __DATA__
 >+ meta
 
     { fields => [qw(k n)],
-      pk     => 'k',
+      key    => 'k',
       nest   => {
         s => {
           fields => [qw(k s)],
-          pk     => 'k',
+          key    => 'k',
         },
         t => {
           fields => [qw(tid t)],
-          pk     => 'tid',
+          key    => 'tid',
           nest   => {
             z => {
               fields => [qw(zid z)],
@@ -252,46 +252,46 @@ __DATA__
 >+ expected
 
     { fields => [{ name => 'k', col => 'p1_k' }, { name => 'n', col => 'p1_n' }],
-      pk     => [{ name => 'k', col => 'p1_k' }],
+      key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
       nest   => {
         s => {
           fields => [{ name => 'k', col => 'p2_k' }, { name => 's', col => 'p2_s' }],
-          pk     => [{ name => 'k', col => 'p2_k' }],
+          key    => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
           nest   => {},
         },
         t => {
           fields => [{ name => 'tid', col => 'p3_tid' }, { name => 't', col => 'p3_t' }],
-          pk     => [{ name => 'tid', col => 'p3_tid' }],
+          key    => [{ name => 'tid', col => 'p3_tid' }],
           id     => 3,
           prefix => 'p3_',
           nest   => {
             x => {
               fields => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
-              pk     => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
+              key    => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
               id     => 4,
               prefix => 'p4_',
               nest   => {},
             },
             y => {
               fields => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
-              pk     => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
+              key    => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
               id     => 5,
               prefix => 'p5_',
               nest   => {},
             },
             z => {
               fields => [{ name => 'zid', col => 'p6_zid' }, { name => 'z', col => 'p6_z' }],
-              pk     => [{ name => 'zid', col => 'p6_zid' }, { name => 'z', col => 'p6_z' }],
+              key    => [{ name => 'zid', col => 'p6_zid' }, { name => 'z', col => 'p6_z' }],
               id     => 6,
               prefix => 'p6_',
               nest   => {
                 w => {
                   fields => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
-                  pk     => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
+                  key    => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
                   id     => 7,
                   prefix => 'p7_',
                   nest   => {},
@@ -310,13 +310,13 @@ __DATA__
 > msg several col set, 1:M relations, several levels, no fields, some pk, automatic prefix
 >+ meta
 
-    { pk   => 'k',
+    { key  => 'k',
       nest => {
-        s => {pk => 'k'},
+        s => { key => 'k' },
         t => {
-          pk   => 'tid',
+          key  => 'tid',
           nest => {
-            z => {nest => {w => {}},},
+            z => { nest => { w => {} }, },
             x => {},
             y => {},
           },
@@ -326,18 +326,18 @@ __DATA__
 
 >+ expected
 
-    { pk     => [{name => 'k', col => 'p1_k'}],
+    { key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
       nest   => {
         s => {
-          pk     => [{name => 'k', col => 'p2_k'}],
+          key    => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
           nest   => {},
         },
         t => {
-          pk     => [{name => 'tid', col => 'p3_tid'}],
+          key    => [{ name => 'tid', col => 'p3_tid' }],
           id     => 3,
           prefix => 'p3_',
           nest   => {
@@ -405,7 +405,7 @@ __DATA__
 > msg single col set, explicit prefix and pk
 >+ meta
 
-    { fields => [qw(k n)], prefix => 'x', pk => 'n' }
+    { fields => [qw(k n)], prefix => 'x', key => 'n' }
 
 > expected
 
@@ -434,7 +434,7 @@ __DATA__
 > msg double col set, explicit pk
 >+ meta
 
-    { fields => [qw(k n)], pk => 'k', nest => { o => { fields => [qw(k o)] } } }
+    { fields => [qw(k n)], key => 'k', nest => { o => { fields => [qw(k o)] } } }
 
 > expected
 
@@ -474,15 +474,15 @@ __DATA__
 >+ meta
 
     { fields => [qw(k n)],
-      pk     => 'k',
+      key    => 'k',
       nest   => {
         s => {
           fields => [qw(k s)],
-          pk     => 'k',
+          key    => 'k',
         },
         t => {
           fields => [qw(tid t)],
-          pk     => 'tid',
+          key    => 'tid',
           nest   => {
             z => {
               fields => [qw(zid z)],
@@ -589,11 +589,11 @@ __DATA__
 > msg complex multi-nested meta, without fields
 >+ meta
 
-    { pk   => 'k',
+    { key  => 'k',
       nest => {
-        s => { pk => 'k' },
+        s => { key => 'k' },
         t => {
-          pk   => 'tid',
+          key  => 'tid',
           nest => {
             z => { nest   => { w => {} }, },
             x => { fields => [qw(xid x)] },

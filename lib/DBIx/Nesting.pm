@@ -40,7 +40,7 @@ sub _emit_meta_block {
   $p_o_var = '@res'  unless $p_o_var;
   $p_s_var = '$seen' unless $p_s_var;
 
-  my ($id, $flds, $pk, $nest, $prfx) = @{$meta}{qw(id fields pk nest prefix)};
+  my ($id, $flds, $key, $nest, $prfx) = @{$meta}{qw(id fields key nest prefix)};
   my $o_var = "\$o$id";
   my $s_var = "\$s$id";
   my $f_var = "\$f$id";
@@ -54,13 +54,13 @@ sub _emit_meta_block {
   my $p = "my $o_var;";
   $p .= "my $f_var = \$prfxs{'$prfx'};" unless $flds;
 
-  ## Fetch seen data for this block, deal with dynamic pk
-  if ($pk) {
+  ## Fetch seen data for this block, deal with dynamic key
+  if ($key) {
     $p .= "my $s_var = $p_s_var\{o$id}";
-    $p .= "{$r_var\->{'$_->{col}'}}" for @$pk;
+    $p .= "{$r_var\->{'$_->{col}'}}" for @$key;
     $p .= "||= {};";
   }
-  else {    # Dynammic pk: all fields will be key
+  else {    # Dynammic key: all fields will be key
     $p .= "my $s_var = $p_s_var\{o$id} ||= {};";
     $p .= "$s_var = $s_var\->{ $r_var\->{\$_->{col}} } ||= {} for \@$f_var;";
   }
@@ -91,7 +91,8 @@ sub _emit_meta_block {
     . " $o_var = $s_var\->{o};";
 
   ## Nesting...
-  $p .= $self->_emit_meta_block($nest->{$_}, $stash, "$o_var\->{'$_'}", "$s_var\->") for sort keys %$nest;
+  $p .= $self->_emit_meta_block($nest->{$_}, $stash, "$o_var\->{'$_'}", "$s_var\->")
+    for sort keys %$nest;
 
   return $p;
 }
@@ -133,14 +134,14 @@ sub _expand_meta_with_defaults {
     }
   }
 
-  ## Define PK
-  my $pk = $ef;
-  if (exists $meta->{pk}) {
-    $pk = $meta->{pk};
-    $pk = [$pk] unless ref($pk) eq 'ARRAY';
-    $pk = [map { exists $fm{$_} ? $fm{$_} : { name => $_, col => "$prefix$_" } } @$pk];
+  ## Define key
+  my $key = $ef;
+  if (exists $meta->{key}) {
+    $key = $meta->{key};
+    $key = [$key] unless ref($key) eq 'ARRAY';
+    $key = [map { exists $fm{$_} ? $fm{$_} : { name => $_, col => "$prefix$_" } } @$key];
   }
-  $cm{pk} = $pk if $pk;
+  $cm{key} = $key if $key;
 
   # Cleanup nested meta
   $cm{nest} = {};
