@@ -1,4 +1,4 @@
-package
+package    # Hide from PAUSE
   DBIx::Nesting::t::Utils;
 
 use strict;
@@ -25,7 +25,8 @@ sub _read_next_test_case {
   my ($cf, $e);
   while (<$fh>) {
     last if /^>+\s+end\s*$/;
-    $cf = $2, $tc{$cf}{perl} = $1, $tc{$cf}{desc} = $3, next if /^>+(\+)?\s+(\w+)(?:\s+(.+))?\s*$/;
+    $cf = $2, $tc{$cf}{perl} = $1, $tc{$cf}{desc} = $3, next
+      if /^>+(\+)?\s+(\w+)(?:\s+(.+))?\s*$/;
     $tc{$cf}{body} .= $_, next if $cf;
     next if /^\s+$/ && !$cf;
     next if /^#/    && !$cf;

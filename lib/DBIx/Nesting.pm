@@ -19,7 +19,8 @@ sub _emit_code {
 
   my $p = $self->_emit_meta_block($meta);
 
-  return 'sub {my(%seen, @res);for my $r (@{$_[0]}) {' . $p . '} return \@res;}';
+  return 'sub {return [] unless @{$_[0]};my(%seen, @res);for my $r (@{$_[0]}) {' . $p
+    . '} return \@res;}';
 }
 
 sub _emit_meta_block {
