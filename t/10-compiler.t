@@ -53,6 +53,7 @@ __DATA__
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n' }],
       key    => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n' }],
       id     => 1,
+      type   => 'multiple',
       nest   => {},
     },
 
@@ -70,6 +71,7 @@ __DATA__
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       key    => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       id     => 1,
+      type   => 'multiple',
       nest   => {},
     }
 
@@ -87,6 +89,7 @@ __DATA__
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       key    => [{ name => 'k', col => 'k' }],
       id     => 1,
+      type   => 'multiple',
       nest   => {},
     }
 
@@ -108,6 +111,7 @@ __DATA__
       ],
       key  => [{ name => 'k', col => 'k' }, { name => 's', col => 's' }],
       id   => 1,
+      type   => 'multiple',
       nest => {},
     }
 
@@ -126,6 +130,7 @@ __DATA__
       key    => [{ name => 'k', col => 'p_k' }],
       id     => 1,
       prefix => 'p_',
+      type   => 'multiple',
       nest   => {},
     }
 
@@ -143,6 +148,7 @@ __DATA__
     { key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
+      type   => 'multiple',
       nest   => {},
     }
 
@@ -159,6 +165,7 @@ __DATA__
 
     { id     => 1,
       prefix => 'p1_',
+      type   => 'multiple',
       nest   => {},
     }
 
@@ -175,10 +182,12 @@ __DATA__
 
     { id     => 1,
       prefix => 'p1_',
+      type   => 'multiple',
       nest   => {
         x => {
           id     => 2,
           prefix => 'p2_',
+          type   => 'multiple',
           nest   => {},
         },
       },
@@ -190,7 +199,7 @@ __DATA__
 ### _expand_meta_with_defaults complex
 
 > for _expand_meta_with_defaults
-> msg two col set, 1:M relation, explicit pk, automatic prefix
+> msg two col set, multiple relation, explicit pk, automatic prefix
 >+ meta
 
     { fields => [qw(k n)],
@@ -209,12 +218,14 @@ __DATA__
       key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
+      type   => 'multiple',
       nest   => {
         s => {
           fields => [{ name => 'k', col => 'p2_k' }, { name => 't', col => 'p2_t' }],
           key    => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
+          type   => 'multiple',
           nest   => {},
         },
       },
@@ -224,7 +235,7 @@ __DATA__
 
 
 > for _expand_meta_with_defaults
-> msg several col set, 1:M relations, several levels, explicit pk, automatic prefix
+> msg several col set, multiple relations, several levels, explicit pk, automatic prefix
 >+ meta
 
     { fields => [qw(k n)],
@@ -255,12 +266,14 @@ __DATA__
       key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
+      type   => 'multiple',
       nest   => {
         s => {
           fields => [{ name => 'k', col => 'p2_k' }, { name => 's', col => 'p2_s' }],
           key    => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
+          type   => 'multiple',
           nest   => {},
         },
         t => {
@@ -268,12 +281,14 @@ __DATA__
           key    => [{ name => 'tid', col => 'p3_tid' }],
           id     => 3,
           prefix => 'p3_',
+          type   => 'multiple',
           nest   => {
             x => {
               fields => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
               key    => [{ name => 'xid', col => 'p4_xid' }, { name => 'x', col => 'p4_x' }],
               id     => 4,
               prefix => 'p4_',
+              type   => 'multiple',
               nest   => {},
             },
             y => {
@@ -281,6 +296,7 @@ __DATA__
               key    => [{ name => 'yid', col => 'p5_yid' }, { name => 'y', col => 'p5_y' }],
               id     => 5,
               prefix => 'p5_',
+              type   => 'multiple',
               nest   => {},
             },
             z => {
@@ -288,12 +304,14 @@ __DATA__
               key    => [{ name => 'zid', col => 'p6_zid' }, { name => 'z', col => 'p6_z' }],
               id     => 6,
               prefix => 'p6_',
+              type   => 'multiple',
               nest   => {
                 w => {
                   fields => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
                   key    => [{ name => 'wid', col => 'p7_wid' }, { name => 'w', col => 'p7_w' }],
                   id     => 7,
                   prefix => 'p7_',
+                  type   => 'multiple',
                   nest   => {},
                 },
               },
@@ -307,7 +325,7 @@ __DATA__
 
 
 > for _expand_meta_with_defaults
-> msg several col set, 1:M relations, several levels, no fields, some pk, automatic prefix
+> msg several col set, multiple relations, several levels, no fields, some pk, automatic prefix
 >+ meta
 
     { key  => 'k',
@@ -329,35 +347,42 @@ __DATA__
     { key    => [{ name => 'k', col => 'p1_k' }],
       id     => 1,
       prefix => 'p1_',
+      type  => 'multiple',
       nest   => {
         s => {
           key    => [{ name => 'k', col => 'p2_k' }],
           id     => 2,
           prefix => 'p2_',
+          type   => 'multiple',
           nest   => {},
         },
         t => {
           key    => [{ name => 'tid', col => 'p3_tid' }],
           id     => 3,
           prefix => 'p3_',
+          type   => 'multiple',
           nest   => {
             x => {
               id     => 4,
               prefix => 'p4_',
+              type   => 'multiple',
               nest   => {},
             },
             y => {
               id     => 5,
               prefix => 'p5_',
+              type   => 'multiple',
               nest   => {},
             },
             z => {
               id     => 6,
               prefix => 'p6_',
+              type   => 'multiple',
               nest   => {
                 w => {
                   id     => 7,
                   prefix => 'p7_',
+                  type   => 'multiple',
                   nest   => {},
                 },
               },
@@ -586,12 +611,12 @@ __DATA__
 
 
 > for _emit_code
-> msg complex multi-nested meta, without fields
+> msg complex multi-nested meta, without fields, mixed relation types
 >+ meta
 
     { key  => 'k',
       nest => {
-        s => { key => 'k' },
+        s => { type => 'single', key => 'k' },
         t => {
           key  => 'tid',
           nest => {
@@ -636,7 +661,7 @@ __DATA__
 	        for my $f (@$f2) {\
 	          $o2->{$f->{name}} = $r->{$f->{col}};\
 	        }\
-          push @{$o1->{'s'}}, $s2->{o} = $o2;\
+          $o1->{'s'} = $s2->{o} = $o2;\
         } \
         $o2 = $s2->{o};\
         \

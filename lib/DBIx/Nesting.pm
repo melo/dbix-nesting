@@ -40,7 +40,7 @@ sub _emit_meta_block {
   $p_o_var = '@res'  unless $p_o_var;
   $p_s_var = '$seen' unless $p_s_var;
 
-  my ($id, $flds, $key, $nest, $prfx) = @{$meta}{qw(id fields key nest prefix)};
+  my ($id, $flds, $key, $type, $nest, $prfx) = @{$meta}{qw(id fields key type nest prefix)};
   my $o_var = "\$o$id";
   my $s_var = "\$s$id";
   my $f_var = "\$f$id";
@@ -69,7 +69,6 @@ sub _emit_meta_block {
   $p .= "unless (\%$s_var) {";
 
   ## Not seen yet, so prep our o_var
-  $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
   if ($flds) {
     $p .= "$o_var = {";
     $p .= "'$_->{name}'=>$r_var\->{'$_->{col}'}," for @$flds;
@@ -83,8 +82,17 @@ sub _emit_meta_block {
       . "$o_var\->{$loop_var\->{name}} = $r_var\->{$loop_var\->{col}};" . '}';
   }
 
-  ## per relation-type manipulation: 1:m only for now
-  $p .= "push $p_o_var, $s_var\->{o} = $o_var;";
+  ## per relation-type manipulation
+  if ($type eq 'multiple') {
+    $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
+    $p .= "push $p_o_var, $s_var\->{o} = $o_var;";
+  }
+  elsif ($type eq 'single') {
+    $p .= "$p_o_var = $s_var\->{o} = $o_var;";
+  }
+  else {
+    die "Unkonwn relation type '$type'";
+  }
 
   ## .. and o_var is set now, so make sure we are using the correct one
   $p .= '}'    # ends the unless (%$s_var)
@@ -142,6 +150,13 @@ sub _expand_meta_with_defaults {
     $key = [map { exists $fm{$_} ? $fm{$_} : { name => $_, col => "$prefix$_" } } @$key];
   }
   $cm{key} = $key if $key;
+
+  # Relation type
+  my $type = 'multiple';
+  if (exists $meta->{type}) {
+    $type = $meta->{type};
+  }
+  $cm{type} = $type;
 
   # Cleanup nested meta
   $cm{nest} = {};
