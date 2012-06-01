@@ -40,7 +40,8 @@ sub _emit_meta_block {
   $p_o_var = '@res'  unless $p_o_var;
   $p_s_var = '$seen' unless $p_s_var;
 
-  my ($id, $flds, $key, $type, $nest, $prfx) = @{$meta}{qw(id fields key type nest prefix)};
+  my ($id, $flds, $key, $into, $type, $nest, $prfx) =
+    @{$meta}{qw(id fields key into type nest prefix)};
   my $o_var = "\$o$id";
   my $s_var = "\$s$id";
   my $f_var = "\$f$id";
@@ -81,6 +82,7 @@ sub _emit_meta_block {
       . "for my $loop_var (\@$f_var) {"
       . "$o_var\->{$loop_var\->{name}} = $r_var\->{$loop_var\->{col}};" . '}';
   }
+  $p .= "$o_var = { '$into' => $o_var };" if $into;
 
   ## per relation-type manipulation
   if ($type eq 'multiple') {
@@ -150,6 +152,9 @@ sub _expand_meta_with_defaults {
     $key = [map { exists $fm{$_} ? $fm{$_} : { name => $_, col => "$prefix$_" } } @$key];
   }
   $cm{key} = $key if $key;
+
+  # into elevation
+  $cm{into} = $meta->{into} if exists $meta->{into};
 
   # Relation type
   my $type = 'multiple';

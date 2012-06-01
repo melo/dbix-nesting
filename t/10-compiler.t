@@ -122,7 +122,7 @@ __DATA__
 > msg simple meta, single col set, no joins, explicit pk, extra field meta, explicit prefix
 >+ meta
 
-    { fields => ['k', n => { label => 'N' }], key => 'k', prefix => 'p' }
+    { fields => ['k', n => { label => 'N' }], key => 'k', prefix => 'p', into => 't' }
 
 >+ expected
 
@@ -130,6 +130,7 @@ __DATA__
       key    => [{ name => 'k', col => 'p_k' }],
       id     => 1,
       prefix => 'p_',
+      into   => 't',
       type   => 'multiple',
       nest   => {},
     }
@@ -611,10 +612,11 @@ __DATA__
 
 
 > for _emit_code
-> msg complex multi-nested meta, without fields, mixed relation types
+> msg complex multi-nested meta, without fields, mixed relation types, with into
 >+ meta
 
     { key  => 'k',
+      into => 'm',
       nest => {
         s => { type => 'single', key => 'k' },
         t => {
@@ -649,6 +651,7 @@ __DATA__
 		      for my $f (@$f1) {\
 		        $o1->{$f->{name}} = $r->{$f->{col}};\
 		      }\
+		      $o1 = { 'm' => $o1 };\
           push @res, $s1->{o} = $o1;\
         } \
         $o1 = $s1->{o};\
