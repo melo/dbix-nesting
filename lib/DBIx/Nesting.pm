@@ -17,34 +17,81 @@ sub _emit_code {
   my ($self, $meta) = @_;
   $meta = $self->_expand_meta_with_defaults($meta);
 
-  my $p = $self->_emit_meta_block($meta);
+  ## gen code and collect meta-meta from out meta
+  my %stash;
+  my $pmb = $self->_emit_meta_block($meta, \%stash);
 
-  return 'sub {return [] unless @{$_[0]};my(%seen, @res);for my $r (@{$_[0]}) {' . $p
-    . '} return \@res;}';
+  ## generate final code
+  my $p = 'sub {return [] unless @{$_[0]};my(%seen, @res);';
+  if ($stash{fscan}) {
+    $p .= 'my %prfxs;for my $f (sort keys %{$_[0][0]}) {' . 'my ($p, $n) = $f =~ m/^(';
+    $p .= join('|', sort @{ $stash{prefixes} });
+    $p .= ')(.+)$/;next unless $p;' . 'push @{$prfxs{$p}}, { name => $n, col => $f};}';
+  }
+  $p .= 'for my $r (@{$_[0]}) {';
+  $p .= $pmb;
+  $p .= '} return \@res;}';
+
+  return $p;
 }
 
 sub _emit_meta_block {
-  my ($self, $meta, $p_o_var, $p_s_var) = @_;
+  my ($self, $meta, $stash, $p_o_var, $p_s_var) = @_;
   $p_o_var = '@res'  unless $p_o_var;
   $p_s_var = '$seen' unless $p_s_var;
 
-  my ($id, $flds, $pk, $nest) = @{$meta}{qw(id fields pk nest)};
+  my ($id, $flds, $pk, $nest, $prfx) = @{$meta}{qw(id fields pk nest prefix)};
   my $o_var = "\$o$id";
   my $s_var = "\$s$id";
+  my $f_var = "\$f$id";
+  my $r_var = '$r';
 
-  ## Preamble: decl o_var, fetch seen data for this block
-  my $p = "my $o_var; my $s_var = $p_s_var\{o$id}";
-  $p .= "{\$r->{'$_->{col}'}}" for @$pk;
-  $p .= "||= {}; unless (\%$s_var) {";
+  ## Collect meta-meta for no fields support: collect prefixes, check for fields presence
+  push @{ $stash->{prefixes} }, $prfx;
+  $stash->{fscan}++ unless $flds;
+
+  ## Preamble: decl o_var and f_var if needed
+  my $p = "my $o_var;";
+  $p .= "my $f_var = \$prfxs{'$prfx'};" unless $flds;
+
+  ## Fetch seen data for this block, deal with dynamic pk
+  if ($pk) {
+    $p .= "my $s_var = $p_s_var\{o$id}";
+    $p .= "{$r_var\->{'$_->{col}'}}" for @$pk;
+    $p .= "||= {};";
+  }
+  else {    # Dynammic pk: all fields will be key
+    $p .= "my $s_var = $p_s_var\{o$id} ||= {};";
+    $p .= "$s_var = $s_var\->{ $r_var\->{\$_->{col}} } ||= {} for \@$f_var;";
+  }
+
+  ## Check seen for first time o_var...
+  $p .= "unless (\%$s_var) {";
+
+  ## Not seen yet, so prep our o_var
+  $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
+  if ($flds) {
+    $p .= "$o_var = {";
+    $p .= "'$_->{name}'=>$r_var\->{'$_->{col}'}," for @$flds;
+    $p .= "};";
+  }
+  else {
+    my $loop_var = '$f';
+    $p
+      .= "$o_var = {};"
+      . "for my $loop_var (\@$f_var) {"
+      . "$o_var\->{$loop_var\->{name}} = $r_var\->{$loop_var\->{col}};" . '}';
+  }
 
   ## per relation-type manipulation: 1:m only for now
-  $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
-  $p .= "push $p_o_var, $o_var = $s_var\->{o} = {";
-  $p .= "'$_->{name}'=>\$r->{'$_->{col}'}," for @$flds;
-  $p .= "};} $o_var = $s_var\->{o};";
+  $p .= "push $p_o_var, $s_var\->{o} = $o_var;";
+
+  ## .. and o_var is set now, so make sure we are using the correct one
+  $p .= '}'    # ends the unless (%$s_var)
+    . " $o_var = $s_var\->{o};";
 
   ## Nesting...
-  $p .= $self->_emit_meta_block($nest->{$_}, "$o_var\->{'$_'}", "$s_var\->") for sort keys %$nest;
+  $p .= $self->_emit_meta_block($nest->{$_}, $stash, "$o_var\->{'$_'}", "$s_var\->") for sort keys %$nest;
 
   return $p;
 }
@@ -68,20 +115,22 @@ sub _expand_meta_with_defaults {
 
     $cm{prefix} = $prefix;
   }
-  elsif ($id > 1 || exists $meta->{nest}) {
+  elsif ($id > 1 || exists $meta->{nest} || !exists $meta->{fields}) {
     $cm{prefix} = $prefix = "p${id}_";
   }
 
   ## Expand fields with prefix
-  my %fm;
-  my $ef = $cm{fields} = [];
-  my @mf = @{ $meta->{fields} };
-  while (@mf) {
-    my $f = shift @mf;
-    my $i = @mf && ref($mf[0]) ? shift @mf : {};
-    $i->{name} = $f;
-    $i->{col}  = "$prefix$f";
-    push @$ef, $fm{$f} = $i;
+  my (%fm, $ef);
+  if (exists $meta->{fields}) {
+    $ef = $cm{fields} = [];
+    my @mf = @{ $meta->{fields} };
+    while (@mf) {
+      my $f = shift @mf;
+      my $i = @mf && ref($mf[0]) ? shift @mf : {};
+      $i->{name} = $f;
+      $i->{col}  = "$prefix$f";
+      push @$ef, $fm{$f} = $i;
+    }
   }
 
   ## Define PK
@@ -89,9 +138,9 @@ sub _expand_meta_with_defaults {
   if (exists $meta->{pk}) {
     $pk = $meta->{pk};
     $pk = [$pk] unless ref($pk) eq 'ARRAY';
-    $pk = [map { exists $fm{$_} ? $fm{$_} : die "Pk '$_' not found in field list" } @$pk];
+    $pk = [map { exists $fm{$_} ? $fm{$_} : { name => $_, col => "$prefix$_" } } @$pk];
   }
-  $cm{pk} = $pk;
+  $cm{pk} = $pk if $pk;
 
   # Cleanup nested meta
   $cm{nest} = {};
