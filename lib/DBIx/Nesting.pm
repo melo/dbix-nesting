@@ -6,11 +6,12 @@ package DBIx::Nesting;
 
 use strict;
 use warnings;
+use Eval::Closure ();
 
 sub compile {
   my ($self, $meta) = @_;
 
-  return eval $self->_emit_code($meta);
+  return Eval::Closure::eval_closure(source => $self->_emit_code($meta));
 }
 
 
