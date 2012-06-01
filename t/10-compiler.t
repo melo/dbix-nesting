@@ -5,6 +5,7 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use Test::Fatal;
+use Test::LongString;
 use DBIx::Nesting;
 use DBIx::Nesting::t::Utils;
 
@@ -23,7 +24,7 @@ subtest 'code emiter' => sub {
   for my $t (@{ $tc->{_emit_code} }) {
     my $desc = $t->{msg}{desc};
     my $meta = $t->{meta}{data};
-    is($u->($meta), $t->{expected}{body}, "$desc ok");
+    is_string($u->($meta), $t->{expected}{body}, "$desc ok");
 
     my $cb;
     is(exception { $cb = $n->compile($meta) }, undef, "... compiles ok too");
