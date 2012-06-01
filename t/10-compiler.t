@@ -79,16 +79,17 @@ __DATA__
 
 
 > for _expand_meta_with_defaults
-> msg simple meta, single col set, no joins, explicit pk, extra field meta
+> msg simple meta, single col set, no joins, explicit pk, extra field meta, filter
 >+ meta
 
-    { fields => ['k', n => { label => 'N' }], key => 'k' }
+    { fields => ['k', n => { label => 'N' }], key => 'k', filter => sub { } }
 
 >+ expected
 
     { fields => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
       key    => [{ name => 'k', col => 'k' }],
       id     => 1,
+      filter => Test::Deep::re(qr{^CODE\(0x[0-9a-f]+\)$}),
       type   => 'multiple',
       nest   => {},
     }
@@ -624,7 +625,8 @@ __DATA__
           nest => {
             z => { nest   => { w => {} }, },
             x => { fields => [qw(xid x)] },
-            y => {},
+            ## real code would use a sub { ... } below but this is easier to test
+            y => { filter => 'CODE(0x00000000)' },
           },
         },
       },
@@ -636,6 +638,7 @@ __DATA__
     sub {\
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
+      my @filter_cbs;\
       my %prfxs;\
       for my $f (sort keys %{$_[0][0]}) {\
 	      my ($p, $n) = $f =~ m/^(p1_|p2_|p3_|p4_|p5_|p6_|p7_)(.+)$/;\
@@ -700,7 +703,12 @@ __DATA__
           for my $f (@$f5) {\
 	          $o5->{$f->{name}} = $r->{$f->{col}};\
 	        }\
-          push @{$o3->{'y'}}, $s5->{o} = $o5;\
+          push @filter_cbs, sub {\
+            local $_ = $o5;\
+            my $n5 = DBIx::Nesting::_filter('CODE(0x00000000)')->($o5);\
+            $o5 = $n5 if defined $n5;\
+            unshift @{$o3->{'y'}}, $s5->{o} = $o5;\
+          };\
         } \
         $o5 = $s5->{o};\
         \
@@ -730,6 +738,7 @@ __DATA__
         } \
         $o7 = $s7->{o};\
       } \
+      $_->() for reverse @filter_cbs; \
       return \@res;\
     }
 

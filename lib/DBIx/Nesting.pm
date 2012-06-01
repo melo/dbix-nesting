@@ -13,6 +13,10 @@ sub compile {
   return eval $self->_emit_code($meta);
 }
 
+
+################
+# Code generator
+
 sub _emit_code {
   my ($self, $meta) = @_;
   $meta = $self->_expand_meta_with_defaults($meta);
@@ -21,16 +25,27 @@ sub _emit_code {
   my %stash;
   my $pmb = $self->_emit_meta_block($meta, \%stash);
 
-  ## generate final code
+  ## generate anon sub + shortcut exit + state vars
   my $p = 'sub {return [] unless @{$_[0]};my(%seen, @res);';
+  $p .= 'my @filter_cbs;' if $stash{filtering};
+
+  ## generate code to cache fields per prefix
   if ($stash{fscan}) {
     $p .= 'my %prfxs;for my $f (sort keys %{$_[0][0]}) {' . 'my ($p, $n) = $f =~ m/^(';
     $p .= join('|', sort @{ $stash{prefixes} });
     $p .= ')(.+)$/;next unless $p;' . 'push @{$prfxs{$p}}, { name => $n, col => $f};}';
   }
+
+  ## row iterator....
   $p .= 'for my $r (@{$_[0]}) {';
   $p .= $pmb;
-  $p .= '} return \@res;}';
+  $p .= '}';
+
+  ## Execute cached filters if any
+  $p .= ' $_->() for reverse @filter_cbs;' if $stash{filtering};
+
+  ## and finish with our return
+  $p .= ' return \@res;}';
 
   return $p;
 }
@@ -40,8 +55,8 @@ sub _emit_meta_block {
   $p_o_var = '@res'  unless $p_o_var;
   $p_s_var = '$seen' unless $p_s_var;
 
-  my ($id, $flds, $key, $into, $type, $nest, $prfx) =
-    @{$meta}{qw(id fields key into type nest prefix)};
+  my ($id, $flds, $key, $into, $type, $nest, $prfx, $filter) =
+    @{$meta}{qw(id fields key into type nest prefix filter)};
   my $o_var = "\$o$id";
   my $s_var = "\$s$id";
   my $f_var = "\$f$id";
@@ -85,15 +100,33 @@ sub _emit_meta_block {
   $p .= "$o_var = { '$into' => $o_var };" if $into;
 
   ## per relation-type manipulation
+  my $rel_p;    ## delay code insertion, decided based on filter presence
   if ($type eq 'multiple') {
     $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
-    $p .= "push $p_o_var, $s_var\->{o} = $o_var;";
+    $rel_p = $filter ? 'unshift' : 'push';
+    $rel_p .= " $p_o_var, $s_var\->{o} = $o_var;";
   }
   elsif ($type eq 'single') {
-    $p .= "$p_o_var = $s_var\->{o} = $o_var;";
+    $rel_p = "$p_o_var = $s_var\->{o} = $o_var;";
   }
   else {
     die "Unkonwn relation type '$type'";
+  }
+
+  ## Filtering
+  if ($filter) {
+    $stash->{filtering}++;    ## include filter storage and execution code in _emit_code
+
+    my $n_var = "\$n$id";
+    $p
+      .= 'push @filter_cbs, sub {'
+      . "local \$_ = $o_var;"
+      . "my $n_var = DBIx::Nesting::_filter('$filter')->($o_var);"
+      . "$o_var = $n_var if defined $n_var;"
+      . $rel_p . '};';
+  }
+  else {
+    $p .= $rel_p;
   }
 
   ## .. and o_var is set now, so make sure we are using the correct one
@@ -106,6 +139,10 @@ sub _emit_meta_block {
 
   return $p;
 }
+
+
+################################
+# Meta cleanups and filter cache
 
 sub _expand_meta_with_defaults {
   my ($self, $meta, $idx) = @_;
@@ -156,6 +193,13 @@ sub _expand_meta_with_defaults {
   # into elevation
   $cm{into} = $meta->{into} if exists $meta->{into};
 
+  # filters
+  if (exists $meta->{filter}) {
+    my $filter_cb = $meta->{filter};
+    $cm{filter} = _filter(add => $filter_cb);
+
+  }
+
   # Relation type
   my $type = 'multiple';
   if (exists $meta->{type}) {
@@ -174,4 +218,22 @@ sub _expand_meta_with_defaults {
   return \%cm;
 }
 
+{
+  ## I love state...
+  my %filters_cb_reg;
+
+  sub _filter {
+    my $filter_id = shift;
+
+    unless (@_) {
+      die "Filter ID '$filter_id' not found," unless exists $filters_cb_reg{$filter_id};
+      return $filters_cb_reg{$filter_id};
+    }
+
+    my $filter_cb = shift;
+    $filter_id = "$filter_cb";
+    $filters_cb_reg{$filter_id} = $filter_cb;
+    return $filter_id;
+  }
+}
 1;
