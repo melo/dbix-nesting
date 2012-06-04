@@ -12,7 +12,7 @@ sub read_all_test_cases {
   my %test_cases;
 
   while (my $tc = _read_next_test_case($fh)) {
-    push @{ $test_cases{ $tc->{for}{desc} } }, $tc;
+    push @{ $test_cases{ $tc->{for}{desc} || 'all' } }, $tc;
   }
 
   return \%test_cases;
