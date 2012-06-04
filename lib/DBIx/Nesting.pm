@@ -105,10 +105,10 @@ sub _emit_meta_block {
   if ($type eq 'multiple') {
     $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
     $rel_p = $filter ? 'unshift' : 'push';
-    $rel_p .= " $p_o_var, $s_var\->{o} = $o_var;";
+    $rel_p .= " $p_o_var, $o_var;";
   }
   elsif ($type eq 'single') {
-    $rel_p = "$p_o_var = $s_var\->{o} = $o_var;";
+    $rel_p = "$p_o_var = $o_var;";
   }
   else {
     die "Unkonwn relation type '$type'";
@@ -131,7 +131,7 @@ sub _emit_meta_block {
   }
 
   ## .. and o_var is set now, so make sure we are using the correct one
-  $p .= '}'    # ends the unless (%$s_var)
+  $p .= "$s_var\->{o} = $o_var;}"    # ends the unless (%$s_var)
     . " $o_var = $s_var\->{o};";
 
   ## Nesting...
