@@ -8,6 +8,13 @@ use strict;
 use warnings;
 use Eval::Closure ();
 
+sub transform {
+  my ($self, $meta, $in) = @_;
+
+  my $cb = $self->compile($meta);
+  return $cb->($in);
+}
+
 sub compile {
   my ($self, $meta) = @_;
 
