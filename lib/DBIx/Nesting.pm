@@ -8,11 +8,26 @@ use strict;
 use warnings;
 use Eval::Closure ();
 
-sub transform {
-  my ($self, $meta, $in) = @_;
+sub new { bless {}, shift }
 
-  my $cb = $self->compile($meta);
-  return $cb->($in);
+{
+  my %cache;
+
+  sub transform {
+    my ($self, $meta, $in, $key) = @_;
+
+    my $cb;
+    if ($key) {
+      my $cache = \%cache;
+      $cache = $self->{cache} ||= {} if ref($self);
+      $cb    = $cache->{$key} ||= $self->compile($meta);
+    }
+    else {
+      $cb = $self->compile($meta);
+    }
+
+    return $cb->($in);
+  }
 }
 
 sub compile {

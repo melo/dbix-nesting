@@ -12,9 +12,28 @@ use DateTime::Format::MySQL;
 my $n  = 'DBIx::Nesting';
 my $tc = read_all_test_cases(\*DATA);
 
-my $u = sub { $n->transform(@_) };    ## shortcut
+my $s  = DBIx::Nesting->new;
+my $ic = sub { $s->transform(@_) };
+my $gc = sub { $n->transform(@_) };
+
 for my $t (@{ $tc->{all} }) {
-  cmp_deeply($u->($t->{meta}{data}, $t->{in}{data}), $t->{out}{data}, $t->{msg}{desc});
+  my $in   = $t->{in}{data};
+  my $out  = $t->{out}{data};
+  my $desc = $t->{msg}{desc};
+  my $meta = $t->{meta}{data};
+
+  ## normal run
+  cmp_deeply($gc->($meta, $in), $out, "Doing $desc");
+
+  ## caching run - global cache
+  cmp_deeply($gc->($meta, $in, $desc), $out, "... first run, init cache for $desc");
+  cmp_deeply($gc->($meta, $in, $desc), $out, "...... second run from cache for $desc");
+  cmp_deeply($gc->($meta, $in, $desc), $out, "...... third run from cache for $desc");
+
+  ## caching run - per-instance cache
+  cmp_deeply($ic->($meta, $in, $desc), $out, "... first run, init cache for $desc");
+  cmp_deeply($ic->($meta, $in, $desc), $out, "...... second run from cache for $desc");
+  cmp_deeply($ic->($meta, $in, $desc), $out, "...... third run from cache for $desc");
 }
 
 
@@ -56,7 +75,7 @@ __DATA__
 > end
 
 
-> msg simple case, single table, with a primary key definition
+> msg simple case, single table, with a primary key definition, with into level
 >+ meta
 
     { prefix => 'p1', into => 't' }
