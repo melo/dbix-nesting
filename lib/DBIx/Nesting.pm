@@ -94,13 +94,13 @@ sub _emit_meta_block {
   $p .= "my $f_var = \$prfxs{'$prfx'};" unless $flds;
 
   ## Fetch seen data for this block, deal with dynamic key
+  $p .= "my $s_var = $p_s_var\{o$id}";
   if ($key) {
-    $p .= "my $s_var = $p_s_var\{o$id}";
     $p .= "{$r_var\->{'$_->{col}'}}" for @$key;
     $p .= "||= {};";
   }
   else {    # Dynammic key: all fields will be key
-    $p .= "my $s_var = $p_s_var\{o$id} ||= {};";
+    $p .= " ||= {};";
     $p .= "$s_var = $s_var\->{ $r_var\->{\$_->{col}} } ||= {} for \@$f_var;";
   }
 
