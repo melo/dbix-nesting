@@ -75,10 +75,12 @@ sub _emit_code {
 
 sub _emit_meta_block {
   my ($self, $meta, $stash, $p_id, $p_key) = @_;
-  my ($p_o_var_access, $p_s_var_access);
+  my ($p_o_var, $p_s_var, $p_o_var_access, $p_s_var_access);
   if ($p_id) {
-    $p_o_var_access = "\$o${p_id}\->{'$p_key'}";
-    $p_s_var_access = "\$s${p_id}\->";
+    $p_o_var        = "\$o${p_id}";
+    $p_s_var        = "\$s${p_id}";
+    $p_o_var_access = "${p_o_var}\->{'$p_key'}";
+    $p_s_var_access = "${p_s_var}\->";
   }
   else {
     $p_o_var_access = '@res';
@@ -97,11 +99,13 @@ sub _emit_meta_block {
   $stash->{fscan}++ unless $flds;
 
   ## Preamble: decl o_var and f_var if needed
-  my $p = "my $o_var;";
+  ## Also make sure parent vars exists: start of block
+  my $p = "my ($o_var, $s_var);";
+  $p .= "if ($p_s_var && $p_o_var) { " if $p_s_var && $p_o_var;
   $p .= "my $f_var = \$prfxs{'$prfx'};" unless $flds;
 
   ## Fetch seen data for this block, deal with dynamic key
-  $p .= "my $s_var = $p_s_var_access\{o$id}";
+  $p .= "$s_var = $p_s_var_access\{o$id}";
   if ($key) {
     $p .= "{$r_var\->{'$_->{col}'}}" for @$key;
     $p .= "||= {};";
@@ -162,6 +166,9 @@ sub _emit_meta_block {
   ## .. and o_var is set now, so make sure we are using the correct one
   $p .= "$s_var\->{o} = $o_var;}"    # ends the unless (%$s_var)
     . " $o_var = $s_var\->{o};";
+
+  ## Make sure parent vars exists: end of block
+  $p .= "} " if $p_s_var && $p_o_var;
 
   ## Nesting...
   $p .= $self->_emit_meta_block($nest->{$_}, $stash, $id, $_) for sort keys %$nest;
