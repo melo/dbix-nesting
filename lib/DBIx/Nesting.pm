@@ -113,7 +113,7 @@ sub _emit_meta_block {
   ## Also make sure parent vars exists: start of block
   my $p = "my ($o_var, $s_var);";
   $p .= "if ($p_s_var && $p_o_var) { " if $p_s_var && $p_o_var;
-  $p .= "my $f_var = \$fields{'$prfx'};" unless $flds;
+  $p .= "my $f_var = \$fields{'$prfx'};" if $prfx;
 
   ## Fetch seen data for this block, deal with dynamic key
   $p .= "$s_var = $p_s_var_access\{o$id}";
@@ -130,17 +130,17 @@ sub _emit_meta_block {
   $p .= "unless (\%$s_var) {";
 
   ## Not seen yet, so prep our o_var
-  if ($flds) {
-    $p .= "$o_var = {";
-    $p .= "'$_->{name}'=>$r_var\->{'$_->{col}'}," for @$flds;
-    $p .= "};";
-  }
-  else {
+  if ($prfx) {
     my $loop_var = '$f';
     $p
       .= "$o_var = {};"
       . "for my $loop_var (\@$f_var) {"
       . "$o_var\->{$loop_var\->{name}} = $r_var\->{$loop_var\->{col}};" . '}';
+  }
+  else {
+    $p .= "$o_var = {";
+    $p .= "'$_->{name}'=>$r_var\->{'$_->{col}'}," for @$flds;
+    $p .= "};";
   }
   $p .= "$o_var = { '$into' => $o_var };" if $into;
 
