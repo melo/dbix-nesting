@@ -132,10 +132,7 @@ sub _emit_meta_block {
   ## Not seen yet, so prep our o_var
   if ($prfx) {
     my $loop_var = '$f';
-    $p
-      .= "$o_var = {};"
-      . "for my $loop_var (\@$f_var) {"
-      . "$o_var\->{$loop_var\->{name}} = $r_var\->{$loop_var\->{col}};" . '}';
+    $p .= "$o_var = {};" . "$o_var\->{\$_\->{name}} = $r_var\->{\$_\->{col}} for \@$f_var;";
   }
   else {
     $p .= "$o_var = {";
