@@ -440,12 +440,14 @@ __DATA__
     sub {\
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
-      my %prfxs;\
+      my %fields;\
       for my $f (sort keys %{$_[0][0]}) {\
         my ($p, $n) = $f =~ m/^(x_)(.+)$/;\
         next unless $p;\
-        push @{$prfxs{$p}}, { name => $n, col => $f};\
+        push @{$fields{$p}}, { name => $n, col => $f};\
       }\
+      $fields{'x_'} = [{col => 'x_k', name => 'k'},{col => 'x_n', name => 'n'}];\
+      \
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         $s1 = $seen{o1}{$r->{'x_n'}}||= {};\
@@ -476,12 +478,15 @@ __DATA__
     sub {\
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
-      my %prfxs;\
+      my %fields;\
       for my $f (sort keys %{$_[0][0]}) {\
         my ($p, $n) = $f =~ m/^(p1_|p2_)(.+)$/;\
         next unless $p;\
-        push @{$prfxs{$p}}, { name => $n, col => $f};\
+        push @{$fields{$p}}, { name => $n, col => $f};\
       }\
+      $fields{'p1_'} = [{col => 'p1_k', name => 'k'},{col => 'p1_n', name => 'n'}];\
+      $fields{'p2_'} = [{col => 'p2_k', name => 'k'},{col => 'p2_o', name => 'o'}];\
+      \
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
@@ -546,12 +551,20 @@ __DATA__
     sub {\
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
-      my %prfxs;\
+      my %fields;\
       for my $f (sort keys %{$_[0][0]}) {\
         my ($p, $n) = $f =~ m/^(p1_|p2_|p3_|p4_|p5_|p6_|p7_)(.+)$/;\
         next unless $p;\
-        push @{$prfxs{$p}}, { name => $n, col => $f};\
+        push @{$fields{$p}}, { name => $n, col => $f};\
       }\
+      $fields{'p1_'} = [{col => 'p1_k', name => 'k'},{col => 'p1_n', name => 'n'}];\
+      $fields{'p2_'} = [{col => 'p2_k', name => 'k'},{col => 'p2_s', name => 's'}];\
+      $fields{'p3_'} = [{col => 'p3_tid', name => 'tid'},{col => 'p3_t', name => 't'}];\
+      $fields{'p4_'} = [{col => 'p4_xid', name => 'xid'},{col => 'p4_x', name => 'x'}];\
+      $fields{'p5_'} = [{col => 'p5_yid', name => 'yid'},{col => 'p5_y', name => 'y'}];\
+      $fields{'p6_'} = [{col => 'p6_zid', name => 'zid'},{col => 'p6_z', name => 'z'}];\
+      $fields{'p7_'} = [{col => 'p7_wid', name => 'wid'},{col => 'p7_w', name => 'w'}];\
+      \
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
@@ -682,15 +695,17 @@ __DATA__
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
       my @filter_cbs;\
-      my %prfxs;\
+      my %fields;\
       for my $f (sort keys %{$_[0][0]}) {\
         my ($p, $n) = $f =~ m/^(p1_|p2_|p3_|p4_|p5_|p6_|p7_)(.+)$/;\
         next unless $p;\
-        push @{$prfxs{$p}}, { name => $n, col => $f};\
+        push @{$fields{$p}}, { name => $n, col => $f};\
       }\
+      $fields{'p4_'} = [{col => 'p4_xid', name => 'xid'},{col => 'p4_x', name => 'x'}];\
+      \
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
-        my $f1 = $prfxs{'p1_'};\
+        my $f1 = $fields{'p1_'};\
         $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
         unless (%$s1) {\
 	        $o1 = {};\
@@ -705,7 +720,7 @@ __DATA__
         \
         my ($o2, $s2);\
         if ($s1 && $o1) { \
-          my $f2 = $prfxs{'p2_'};\
+          my $f2 = $fields{'p2_'};\
           $s2 = $s1->{o2}{$r->{'p2_k'}}||= {};\
           unless (%$s2) {\
             $o2 = {};\
@@ -720,7 +735,7 @@ __DATA__
         \
         my ($o3, $s3);\
         if ($s1 && $o1) { \
-          my $f3 = $prfxs{'p3_'};\
+          my $f3 = $fields{'p3_'};\
           $s3 = $s1->{o3}{$r->{'p3_tid'}}||= {};\
           unless (%$s3) {\
             $o3 = {};\
@@ -749,7 +764,7 @@ __DATA__
         \
         my ($o5, $s5);\
         if ($s3 && $o3) { \
-          my $f5 = $prfxs{'p5_'};\
+          my $f5 = $fields{'p5_'};\
           $s5 = $s3->{o5} ||= {};\
           $s5 = $s5->{ $r->{$_->{col}} } ||= {} for @$f5;\
           unless (%$s5) {\
@@ -770,7 +785,7 @@ __DATA__
         \
         my ($o6, $s6);\
         if ($s3 && $o3) { \
-          my $f6 = $prfxs{'p6_'};\
+          my $f6 = $fields{'p6_'};\
           $s6 = $s3->{o6} ||= {};\
           $s6 = $s6->{ $r->{$_->{col}} } ||= {} for @$f6;\
           unless (%$s6) {\
@@ -786,7 +801,7 @@ __DATA__
         \
         my ($o7, $s7);\
         if ($s6 && $o6) { \
-          my $f7 = $prfxs{'p7_'};\
+          my $f7 = $fields{'p7_'};\
           $s7 = $s6->{o7} ||= {};\
           $s7 = $s7->{ $r->{$_->{col}} } ||= {} for @$f7;\
           unless (%$s7) {\

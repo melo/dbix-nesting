@@ -55,10 +55,18 @@ sub _emit_code {
   ## generate code to cache fields per prefix
   my $prfxs = $stash{prefixes} || [];
   if (@$prfxs) {
-    $p .= 'my %prfxs;';
+    $p .= 'my %fields;';
     $p .= 'for my $f (sort keys %{$_[0][0]}) {' . 'my ($p, $n) = $f =~ m/^(';
     $p .= join('|', sort @$prfxs);
-    $p .= ')(.+)$/;next unless $p;' . 'push @{$prfxs{$p}}, { name => $n, col => $f};}';
+    $p .= ')(.+)$/;next unless $p;' . 'push @{$fields{$p}}, { name => $n, col => $f};}';
+
+    if (my $flds = $stash{fields}) {
+      for my $prfx (sort keys %$flds) {
+        $p .= "\$fields{'$prfx'} = [";
+        $p .= join(',', map {"{col => '$_->{col}', name => '$_->{name}'}"} @{ $flds->{$prfx} });
+        $p .= "];";
+      }
+    }
   }
 
   ## row iterator....
@@ -96,13 +104,16 @@ sub _emit_meta_block {
   my $r_var = '$r';
 
   ## Collect meta-meta for no fields support: collect prefixes, check for fields presence
-  push @{ $stash->{prefixes} }, $prfx if $prfx;
+  if ($prfx) {
+    push @{ $stash->{prefixes} }, $prfx;
+    $stash->{fields}{$prfx} = $flds if $flds;
+  }
 
   ## Preamble: decl o_var and f_var if needed
   ## Also make sure parent vars exists: start of block
   my $p = "my ($o_var, $s_var);";
   $p .= "if ($p_s_var && $p_o_var) { " if $p_s_var && $p_o_var;
-  $p .= "my $f_var = \$prfxs{'$prfx'};" unless $flds;
+  $p .= "my $f_var = \$fields{'$prfx'};" unless $flds;
 
   ## Fetch seen data for this block, deal with dynamic key
   $p .= "$s_var = $p_s_var_access\{o$id}";
