@@ -74,9 +74,16 @@ sub _emit_code {
 }
 
 sub _emit_meta_block {
-  my ($self, $meta, $stash, $p_o_var, $p_s_var) = @_;
-  $p_o_var = '@res'  unless $p_o_var;
-  $p_s_var = '$seen' unless $p_s_var;
+  my ($self, $meta, $stash, $p_id, $p_key) = @_;
+  my ($p_o_var, $p_s_var);
+  if ($p_id) {
+    $p_o_var = "\$o${p_id}\->{'$p_key'}";
+    $p_s_var = "\$s${p_id}\->";
+  }
+  else {
+    $p_o_var = '@res';
+    $p_s_var = '$seen';
+  }
 
   my ($id, $flds, $key, $into, $type, $nest, $prfx, $filter) =
     @{$meta}{qw(id fields key into type nest prefix filter)};
@@ -157,8 +164,7 @@ sub _emit_meta_block {
     . " $o_var = $s_var\->{o};";
 
   ## Nesting...
-  $p .= $self->_emit_meta_block($nest->{$_}, $stash, "$o_var\->{'$_'}", "$s_var\->")
-    for sort keys %$nest;
+  $p .= $self->_emit_meta_block($nest->{$_}, $stash, $id, $_) for sort keys %$nest;
 
   return $p;
 }
