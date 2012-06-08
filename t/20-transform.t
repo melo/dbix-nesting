@@ -75,6 +75,32 @@ __DATA__
 > end
 
 
+> msg single table, with a key definition, null fields
+>+ meta
+
+    { prefix => 'p1', key => ['k1', 'k2'] }
+
+>+ in
+
+    [ { p1_k1 => 1,     p1_k2 => 1,     p1_n => "a" },
+      { p1_k1 => 1,     p1_k2 => 1,     p1_n => "b" },
+      { p1_k1 => 3,     p1_k2 => 1,,    p1_n => "c" },
+      { p1_k1 => 3,     p1_k2 => undef, p1_n => "d" },
+      { p1_k1 => undef, p1_k2 => undef, p1_n => "u1" },
+      { p1_k1 => undef, p1_k2 => undef, p1_n => "u2" },
+    ]
+
+>+ out
+
+    [ { k1 => 1,     k2 => 1,     n => "a" },
+      { k1 => 3,     k2 => 1,     n => "c" },
+      { k1 => 3,     k2 => undef, n => "d" },
+      { k1 => undef, k2 => undef, n => "u1" },
+    ]
+
+> end
+
+
 > msg simple case, single table, with a primary key definition, with into level
 >+ meta
 

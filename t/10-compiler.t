@@ -412,7 +412,8 @@ __DATA__
       my(%seen, @res);\
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
-        $s1 = $seen{o1}{$r->{'k'}}{$r->{'n'}}||= {};\
+        $s1 = $seen{o1} ||= {};\
+        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('k','n');\
         unless (%$s1) {\
           $o1 = {\
             'k'=>$r->{'k'},\
@@ -451,7 +452,8 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'x_'};\
-        $s1 = $seen{o1}{$r->{'x_n'}}||= {};\
+        $s1 = $seen{o1} ||= {};\
+        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('x_n');\
         unless (%$s1) {\
           $o1 = {};\
           $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
@@ -489,7 +491,8 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'p1_'};\
-        $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
+        $s1 = $seen{o1} ||= {};\
+        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
         unless (%$s1) {\
           $o1 = {};\
           $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
@@ -501,7 +504,8 @@ __DATA__
         my ($o2, $s2);\
         if ($s1 && $o1) { \
           my $f2 = $fields{'p2_'};\
-          $s2 = $s1->{o2}{$r->{'p2_k'}}{$r->{'p2_o'}}||= {};\
+          $s2 = $s1->{o2} ||= {};\
+          $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k','p2_o');\
           unless (%$s2) {\
             $o2 = {};\
             $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
@@ -566,7 +570,8 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'p1_'};\
-        $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
+        $s1 = $seen{o1} ||= {};\
+        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
         unless (%$s1) {\
           $o1 = {};\
           $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
@@ -578,7 +583,8 @@ __DATA__
         my ($o2, $s2);\
         if ($s1 && $o1) { \
           my $f2 = $fields{'p2_'};\
-          $s2 = $s1->{o2}{$r->{'p2_k'}}||= {};\
+          $s2 = $s1->{o2} ||= {};\
+          $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k');\
           unless (%$s2) {\
             $o2 = {};\
             $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
@@ -591,7 +597,8 @@ __DATA__
         my ($o3, $s3);\
         if ($s1 && $o1) { \
           my $f3 = $fields{'p3_'};\
-          $s3 = $s1->{o3}{$r->{'p3_tid'}}||= {};\
+          $s3 = $s1->{o3} ||= {};\
+          $s3 = $s3->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p3_tid');\
           unless (%$s3) {\
             $o3 = {};\
             $o3->{$_->{name}} = $r->{$_->{col}} for @$f3;\
@@ -604,7 +611,8 @@ __DATA__
         my ($o4, $s4);\
         if ($s3 && $o3) { \
           my $f4 = $fields{'p4_'};\
-          $s4 = $s3->{o4}{$r->{'p4_xid'}}{$r->{'p4_x'}}||= {};\
+          $s4 = $s3->{o4} ||= {};\
+          $s4 = $s4->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p4_xid','p4_x');\
           unless (%$s4) {\
             $o4 = {};\
             $o4->{$_->{name}} = $r->{$_->{col}} for @$f4;\
@@ -617,7 +625,8 @@ __DATA__
         my ($o5, $s5);\
         if ($s3 && $o3) { \
           my $f5 = $fields{'p5_'};\
-          $s5 = $s3->{o5}{$r->{'p5_yid'}}{$r->{'p5_y'}}||= {};\
+          $s5 = $s3->{o5} ||= {};\
+          $s5 = $s5->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p5_yid','p5_y');\
           unless (%$s5) {\
             $o5 = {};\
             $o5->{$_->{name}} = $r->{$_->{col}} for @$f5;\
@@ -630,7 +639,8 @@ __DATA__
         my ($o6, $s6);\
         if ($s3 && $o3) { \
           my $f6 = $fields{'p6_'};\
-          $s6 = $s3->{o6}{$r->{'p6_zid'}}{$r->{'p6_z'}}||= {};\
+          $s6 = $s3->{o6} ||= {};\
+          $s6 = $s6->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p6_zid','p6_z');\
           unless (%$s6) {\
             $o6 = {};\
             $o6->{$_->{name}} = $r->{$_->{col}} for @$f6;\
@@ -643,7 +653,8 @@ __DATA__
         my ($o7, $s7);\
         if ($s6 && $o6) { \
           my $f7 = $fields{'p7_'};\
-          $s7 = $s6->{o7}{$r->{'p7_wid'}}{$r->{'p7_w'}}||= {};\
+          $s7 = $s6->{o7} ||= {};\
+          $s7 = $s7->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p7_wid','p7_w');\
           unless (%$s7) {\
             $o7 = {};\
             $o7->{$_->{name}} = $r->{$_->{col}} for @$f7;\
@@ -697,7 +708,8 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'p1_'};\
-        $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
+        $s1 = $seen{o1} ||= {};\
+        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
         unless (%$s1) {\
 	        $o1 = {};\
 		      $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
@@ -710,7 +722,8 @@ __DATA__
         my ($o2, $s2);\
         if ($s1 && $o1) { \
           my $f2 = $fields{'p2_'};\
-          $s2 = $s1->{o2}{$r->{'p2_k'}}||= {};\
+          $s2 = $s1->{o2} ||= {};\
+          $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k');\
           unless (%$s2) {\
             $o2 = {};\
 	          $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
@@ -723,7 +736,8 @@ __DATA__
         my ($o3, $s3);\
         if ($s1 && $o1) { \
           my $f3 = $fields{'p3_'};\
-          $s3 = $s1->{o3}{$r->{'p3_tid'}}||= {};\
+          $s3 = $s1->{o3} ||= {};\
+          $s3 = $s3->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p3_tid');\
           unless (%$s3) {\
             $o3 = {};\
 	          $o3->{$_->{name}} = $r->{$_->{col}} for @$f3;\
@@ -736,7 +750,8 @@ __DATA__
         my ($o4, $s4);\
         if ($s3 && $o3) { \
           my $f4 = $fields{'p4_'};\
-          $s4 = $s3->{o4}{$r->{'p4_xid'}}{$r->{'p4_x'}}||= {};\
+          $s4 = $s3->{o4} ||= {};\
+          $s4 = $s4->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p4_xid','p4_x');\
           unless (%$s4) {\
             $o4 = {};\
             $o4->{$_->{name}} = $r->{$_->{col}} for @$f4;\
@@ -750,7 +765,7 @@ __DATA__
         if ($s3 && $o3) { \
           my $f5 = $fields{'p5_'};\
           $s5 = $s3->{o5} ||= {};\
-          $s5 = $s5->{ $r->{$_->{col}} } ||= {} for @$f5;\
+          $s5 = $s5->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f5;\
           unless (%$s5) {\
             $o5 = {};\
             $o5->{$_->{name}} = $r->{$_->{col}} for @$f5;\
@@ -769,7 +784,7 @@ __DATA__
         if ($s3 && $o3) { \
           my $f6 = $fields{'p6_'};\
           $s6 = $s3->{o6} ||= {};\
-          $s6 = $s6->{ $r->{$_->{col}} } ||= {} for @$f6;\
+          $s6 = $s6->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f6;\
           unless (%$s6) {\
             $o6 = {};\
             $o6->{$_->{name}} = $r->{$_->{col}} for @$f6;\
@@ -783,7 +798,7 @@ __DATA__
         if ($s6 && $o6) { \
           my $f7 = $fields{'p7_'};\
           $s7 = $s6->{o7} ||= {};\
-          $s7 = $s7->{ $r->{$_->{col}} } ||= {} for @$f7;\
+          $s7 = $s7->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f7;\
           unless (%$s7) {\
             $o7 = {};\
             $o7->{$_->{name}} = $r->{$_->{col}} for @$f7;\

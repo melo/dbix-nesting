@@ -116,14 +116,16 @@ sub _emit_meta_block {
   $p .= "my $f_var = \$fields{'$prfx'};" if $prfx;
 
   ## Fetch seen data for this block, deal with dynamic key
-  $p .= "$s_var = $p_s_var_access\{o$id}";
+  $p .= "$s_var = $p_s_var_access\{o$id} ||= {};";
+  $p .= "$s_var = $s_var\->{(defined()? \"D\$_\" : 'Undef')} ||= {} for ";
   if ($key) {
-    $p .= "{$r_var\->{'$_->{col}'}}" for @$key;
-    $p .= "||= {};";
+    $p .= "map { $r_var\->{\$_} } ";
+    $p .= '(';
+    $p .= join(',', map {"'$_->{col}'"} @$key);
+    $p .= ');';
   }
-  else {    # Dynammic key: all fields will be key
-    $p .= " ||= {};";
-    $p .= "$s_var = $s_var\->{ $r_var\->{\$_->{col}} } ||= {} for \@$f_var;";
+  else {
+    $p .= "map { $r_var\->{\$_\->{col}} } \@$f_var;";
   }
 
   ## Check seen for first time o_var...
