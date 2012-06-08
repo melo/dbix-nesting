@@ -75,14 +75,14 @@ sub _emit_code {
 
 sub _emit_meta_block {
   my ($self, $meta, $stash, $p_id, $p_key) = @_;
-  my ($p_o_var, $p_s_var);
+  my ($p_o_var_access, $p_s_var_access);
   if ($p_id) {
-    $p_o_var = "\$o${p_id}\->{'$p_key'}";
-    $p_s_var = "\$s${p_id}\->";
+    $p_o_var_access = "\$o${p_id}\->{'$p_key'}";
+    $p_s_var_access = "\$s${p_id}\->";
   }
   else {
-    $p_o_var = '@res';
-    $p_s_var = '$seen';
+    $p_o_var_access = '@res';
+    $p_s_var_access = '$seen';
   }
 
   my ($id, $flds, $key, $into, $type, $nest, $prfx, $filter) =
@@ -101,7 +101,7 @@ sub _emit_meta_block {
   $p .= "my $f_var = \$prfxs{'$prfx'};" unless $flds;
 
   ## Fetch seen data for this block, deal with dynamic key
-  $p .= "my $s_var = $p_s_var\{o$id}";
+  $p .= "my $s_var = $p_s_var_access\{o$id}";
   if ($key) {
     $p .= "{$r_var\->{'$_->{col}'}}" for @$key;
     $p .= "||= {};";
@@ -132,12 +132,12 @@ sub _emit_meta_block {
   ## per relation-type manipulation
   my $rel_p;    ## delay code insertion, decided based on filter presence
   if ($type eq 'multiple') {
-    $p_o_var = "\@{$p_o_var}" unless substr($p_o_var, 0, 1) eq '@';
+    $p_o_var_access = "\@{$p_o_var_access}" unless substr($p_o_var_access, 0, 1) eq '@';
     $rel_p = $filter ? 'unshift' : 'push';
-    $rel_p .= " $p_o_var, $o_var;";
+    $rel_p .= " $p_o_var_access, $o_var;";
   }
   elsif ($type eq 'single') {
-    $rel_p = "$p_o_var = $o_var;";
+    $rel_p = "$p_o_var_access = $o_var;";
   }
   else {
     die "Unkonwn relation type '$type'";
