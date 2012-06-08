@@ -440,6 +440,12 @@ __DATA__
     sub {\
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
+      my %prfxs;\
+      for my $f (sort keys %{$_[0][0]}) {\
+        my ($p, $n) = $f =~ m/^(x_)(.+)$/;\
+        next unless $p;\
+        push @{$prfxs{$p}}, { name => $n, col => $f};\
+      }\
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         $s1 = $seen{o1}{$r->{'x_n'}}||= {};\
@@ -470,6 +476,12 @@ __DATA__
     sub {\
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
+      my %prfxs;\
+      for my $f (sort keys %{$_[0][0]}) {\
+        my ($p, $n) = $f =~ m/^(p1_|p2_)(.+)$/;\
+        next unless $p;\
+        push @{$prfxs{$p}}, { name => $n, col => $f};\
+      }\
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
@@ -534,6 +546,12 @@ __DATA__
     sub {\
 	    return [] unless @{$_[0]};\
       my(%seen, @res);\
+      my %prfxs;\
+      for my $f (sort keys %{$_[0][0]}) {\
+        my ($p, $n) = $f =~ m/^(p1_|p2_|p3_|p4_|p5_|p6_|p7_)(.+)$/;\
+        next unless $p;\
+        push @{$prfxs{$p}}, { name => $n, col => $f};\
+      }\
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         $s1 = $seen{o1}{$r->{'p1_k'}}||= {};\
@@ -666,10 +684,10 @@ __DATA__
       my @filter_cbs;\
       my %prfxs;\
       for my $f (sort keys %{$_[0][0]}) {\
-	      my ($p, $n) = $f =~ m/^(p1_|p2_|p3_|p4_|p5_|p6_|p7_)(.+)$/;\
-	      next unless $p;\
-	      push @{$prfxs{$p}}, { name => $n, col => $f};\
-	    }\
+        my ($p, $n) = $f =~ m/^(p1_|p2_|p3_|p4_|p5_|p6_|p7_)(.+)$/;\
+        next unless $p;\
+        push @{$prfxs{$p}}, { name => $n, col => $f};\
+      }\
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $prfxs{'p1_'};\

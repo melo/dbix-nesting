@@ -53,9 +53,11 @@ sub _emit_code {
   $p .= 'my @filter_cbs;' if $stash{filtering};
 
   ## generate code to cache fields per prefix
-  if ($stash{fscan}) {
-    $p .= 'my %prfxs;for my $f (sort keys %{$_[0][0]}) {' . 'my ($p, $n) = $f =~ m/^(';
-    $p .= join('|', sort @{ $stash{prefixes} });
+  my $prfxs = $stash{prefixes} || [];
+  if (@$prfxs) {
+    $p .= 'my %prfxs;';
+    $p .= 'for my $f (sort keys %{$_[0][0]}) {' . 'my ($p, $n) = $f =~ m/^(';
+    $p .= join('|', sort @$prfxs);
     $p .= ')(.+)$/;next unless $p;' . 'push @{$prfxs{$p}}, { name => $n, col => $f};}';
   }
 
@@ -94,8 +96,7 @@ sub _emit_meta_block {
   my $r_var = '$r';
 
   ## Collect meta-meta for no fields support: collect prefixes, check for fields presence
-  push @{ $stash->{prefixes} }, $prfx;
-  $stash->{fscan}++ unless $flds;
+  push @{ $stash->{prefixes} }, $prfx if $prfx;
 
   ## Preamble: decl o_var and f_var if needed
   ## Also make sure parent vars exists: start of block
