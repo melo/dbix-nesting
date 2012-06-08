@@ -20,7 +20,7 @@ sub new { bless {}, shift }
     if ($key) {
       my $cache = \%cache;
       $cache = $self->{cache} ||= {} if ref($self);
-      $cb    = $cache->{$key} ||= $self->compile($meta);
+      $cb = $cache->{$key} ||= $self->compile($meta);
     }
     else {
       $cb = $self->compile($meta);
@@ -87,8 +87,7 @@ sub _emit_meta_block {
     $p_s_var_access = '$seen';
   }
 
-  my ($id, $flds, $key, $into, $type, $nest, $prfx, $filter) =
-    @{$meta}{qw(id fields key into type nest prefix filter)};
+  my ($id, $flds, $key, $into, $type, $nest, $prfx, $filter) = @{$meta}{qw(id fields key into type nest prefix filter)};
   my $o_var = "\$o$id";
   my $s_var = "\$s$id";
   my $f_var = "\$f$id";
