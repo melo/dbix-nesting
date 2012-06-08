@@ -412,17 +412,19 @@ __DATA__
       my(%seen, @res);\
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
-        $s1 = $seen{o1} ||= {};\
-        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('k','n');\
-        unless (%$s1) {\
-          $o1 = {\
-            'k'=>$r->{'k'},\
-            'n'=>$r->{'n'},\
-          };\
-          push @res, $o1;\
-          $s1->{o} = $o1;\
+        if (grep {defined()} map { $r->{$_} } keys %$r) {\
+          $s1 = $seen{o1} ||= {};\
+          $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('k','n');\
+          unless (%$s1) {\
+            $o1 = {\
+              'k'=>$r->{'k'},\
+              'n'=>$r->{'n'},\
+            };\
+            push @res, $o1;\
+            $s1->{o} = $o1;\
+          } \
+          $o1 = $s1->{o};\
         } \
-        $o1 = $s1->{o};\
       } \
       return \@res;\
     }
@@ -452,15 +454,17 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'x_'};\
-        $s1 = $seen{o1} ||= {};\
-        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('x_n');\
-        unless (%$s1) {\
-          $o1 = {};\
-          $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
-          push @res, $o1;\
-          $s1->{o} = $o1;\
+        if (grep {defined()} map { $r->{$_->{col}} } @$f1) {\
+          $s1 = $seen{o1} ||= {};\
+          $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('x_n');\
+          unless (%$s1) {\
+            $o1 = {};\
+            $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
+            push @res, $o1;\
+            $s1->{o} = $o1;\
+          } \
+          $o1 = $s1->{o};\
         } \
-        $o1 = $s1->{o};\
       } \
       return \@res;\
   }
@@ -491,28 +495,32 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'p1_'};\
-        $s1 = $seen{o1} ||= {};\
-        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
-        unless (%$s1) {\
-          $o1 = {};\
-          $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
-          push @res, $o1;\
-          $s1->{o} = $o1;\
+        if (grep {defined()} map { $r->{$_->{col}} } @$f1) {\
+          $s1 = $seen{o1} ||= {};\
+          $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
+          unless (%$s1) {\
+            $o1 = {};\
+            $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
+            push @res, $o1;\
+            $s1->{o} = $o1;\
+          } \
+          $o1 = $s1->{o};\
         } \
-        $o1 = $s1->{o};\
         \
         my ($o2, $s2);\
         if ($s1 && $o1) { \
           my $f2 = $fields{'p2_'};\
-          $s2 = $s1->{o2} ||= {};\
-          $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k','p2_o');\
-          unless (%$s2) {\
-            $o2 = {};\
-            $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
-            push @{$o1->{'o'}}, $o2;\
-            $s2->{o} = $o2;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f2) {\
+            $s2 = $s1->{o2} ||= {};\
+            $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k','p2_o');\
+            unless (%$s2) {\
+              $o2 = {};\
+              $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
+              push @{$o1->{'o'}}, $o2;\
+              $s2->{o} = $o2;\
+            } \
+            $o2 = $s2->{o};\
           } \
-          $o2 = $s2->{o};\
         } \
       } \
       return \@res;\
@@ -570,98 +578,112 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'p1_'};\
-        $s1 = $seen{o1} ||= {};\
-        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
-        unless (%$s1) {\
-          $o1 = {};\
-          $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
-          push @res, $o1;\
-          $s1->{o} = $o1;\
+        if (grep {defined()} map { $r->{$_->{col}} } @$f1) {\
+          $s1 = $seen{o1} ||= {};\
+          $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
+          unless (%$s1) {\
+            $o1 = {};\
+            $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
+            push @res, $o1;\
+            $s1->{o} = $o1;\
+          } \
+          $o1 = $s1->{o};\
         } \
-        $o1 = $s1->{o};\
         \
         my ($o2, $s2);\
         if ($s1 && $o1) { \
           my $f2 = $fields{'p2_'};\
-          $s2 = $s1->{o2} ||= {};\
-          $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k');\
-          unless (%$s2) {\
-            $o2 = {};\
-            $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
-            push @{$o1->{'s'}}, $o2;\
-            $s2->{o} = $o2;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f2) {\
+            $s2 = $s1->{o2} ||= {};\
+            $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k');\
+            unless (%$s2) {\
+              $o2 = {};\
+              $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
+              push @{$o1->{'s'}}, $o2;\
+              $s2->{o} = $o2;\
+            } \
+            $o2 = $s2->{o};\
           } \
-          $o2 = $s2->{o};\
         } \
         \
         my ($o3, $s3);\
         if ($s1 && $o1) { \
           my $f3 = $fields{'p3_'};\
-          $s3 = $s1->{o3} ||= {};\
-          $s3 = $s3->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p3_tid');\
-          unless (%$s3) {\
-            $o3 = {};\
-            $o3->{$_->{name}} = $r->{$_->{col}} for @$f3;\
-            push @{$o1->{'t'}}, $o3;\
-            $s3->{o} = $o3;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f3) {\
+            $s3 = $s1->{o3} ||= {};\
+            $s3 = $s3->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p3_tid');\
+            unless (%$s3) {\
+              $o3 = {};\
+              $o3->{$_->{name}} = $r->{$_->{col}} for @$f3;\
+              push @{$o1->{'t'}}, $o3;\
+              $s3->{o} = $o3;\
+            } \
+            $o3 = $s3->{o};\
           } \
-          $o3 = $s3->{o};\
         } \
         \
         my ($o4, $s4);\
         if ($s3 && $o3) { \
           my $f4 = $fields{'p4_'};\
-          $s4 = $s3->{o4} ||= {};\
-          $s4 = $s4->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p4_xid','p4_x');\
-          unless (%$s4) {\
-            $o4 = {};\
-            $o4->{$_->{name}} = $r->{$_->{col}} for @$f4;\
-            push @{$o3->{'x'}}, $o4;\
-            $s4->{o} = $o4;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f4) {\
+            $s4 = $s3->{o4} ||= {};\
+            $s4 = $s4->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p4_xid','p4_x');\
+            unless (%$s4) {\
+              $o4 = {};\
+              $o4->{$_->{name}} = $r->{$_->{col}} for @$f4;\
+              push @{$o3->{'x'}}, $o4;\
+              $s4->{o} = $o4;\
+            } \
+            $o4 = $s4->{o};\
           } \
-          $o4 = $s4->{o};\
         } \
         \
         my ($o5, $s5);\
         if ($s3 && $o3) { \
           my $f5 = $fields{'p5_'};\
-          $s5 = $s3->{o5} ||= {};\
-          $s5 = $s5->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p5_yid','p5_y');\
-          unless (%$s5) {\
-            $o5 = {};\
-            $o5->{$_->{name}} = $r->{$_->{col}} for @$f5;\
-            push @{$o3->{'y'}}, $o5;\
-            $s5->{o} = $o5;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f5) {\
+            $s5 = $s3->{o5} ||= {};\
+            $s5 = $s5->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p5_yid','p5_y');\
+            unless (%$s5) {\
+              $o5 = {};\
+              $o5->{$_->{name}} = $r->{$_->{col}} for @$f5;\
+              push @{$o3->{'y'}}, $o5;\
+              $s5->{o} = $o5;\
+            } \
+            $o5 = $s5->{o};\
           } \
-          $o5 = $s5->{o};\
         } \
         \
         my ($o6, $s6);\
         if ($s3 && $o3) { \
           my $f6 = $fields{'p6_'};\
-          $s6 = $s3->{o6} ||= {};\
-          $s6 = $s6->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p6_zid','p6_z');\
-          unless (%$s6) {\
-            $o6 = {};\
-            $o6->{$_->{name}} = $r->{$_->{col}} for @$f6;\
-            push @{$o3->{'z'}}, $o6;\
-            $s6->{o} = $o6;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f6) {\
+            $s6 = $s3->{o6} ||= {};\
+            $s6 = $s6->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p6_zid','p6_z');\
+            unless (%$s6) {\
+              $o6 = {};\
+              $o6->{$_->{name}} = $r->{$_->{col}} for @$f6;\
+              push @{$o3->{'z'}}, $o6;\
+              $s6->{o} = $o6;\
+            } \
+            $o6 = $s6->{o};\
           } \
-          $o6 = $s6->{o};\
         } \
         \
         my ($o7, $s7);\
         if ($s6 && $o6) { \
           my $f7 = $fields{'p7_'};\
-          $s7 = $s6->{o7} ||= {};\
-          $s7 = $s7->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p7_wid','p7_w');\
-          unless (%$s7) {\
-            $o7 = {};\
-            $o7->{$_->{name}} = $r->{$_->{col}} for @$f7;\
-            push @{$o6->{'w'}}, $o7;\
-            $s7->{o} = $o7;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f7) {\
+            $s7 = $s6->{o7} ||= {};\
+            $s7 = $s7->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p7_wid','p7_w');\
+            unless (%$s7) {\
+              $o7 = {};\
+              $o7->{$_->{name}} = $r->{$_->{col}} for @$f7;\
+              push @{$o6->{'w'}}, $o7;\
+              $s7->{o} = $o7;\
+            } \
+            $o7 = $s7->{o};\
           } \
-          $o7 = $s7->{o};\
         } \
       } \
       return \@res;\
@@ -708,104 +730,118 @@ __DATA__
       for my $r (@{$_[0]}) {\
         my ($o1, $s1);\
         my $f1 = $fields{'p1_'};\
-        $s1 = $seen{o1} ||= {};\
-        $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
-        unless (%$s1) {\
-	        $o1 = {};\
-		      $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
-		      $o1 = { 'm' => $o1 };\
-          push @res, $o1;\
-          $s1->{o} = $o1;\
+        if (grep {defined()} map { $r->{$_->{col}} } @$f1) {\
+          $s1 = $seen{o1} ||= {};\
+          $s1 = $s1->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p1_k');\
+          unless (%$s1) {\
+	          $o1 = {};\
+		        $o1->{$_->{name}} = $r->{$_->{col}} for @$f1;\
+		        $o1 = { 'm' => $o1 };\
+            push @res, $o1;\
+            $s1->{o} = $o1;\
+          } \
+          $o1 = $s1->{o};\
         } \
-        $o1 = $s1->{o};\
         \
         my ($o2, $s2);\
         if ($s1 && $o1) { \
           my $f2 = $fields{'p2_'};\
-          $s2 = $s1->{o2} ||= {};\
-          $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k');\
-          unless (%$s2) {\
-            $o2 = {};\
-	          $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
-            $o1->{'s'} = $o2;\
-            $s2->{o} = $o2;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f2) {\
+            $s2 = $s1->{o2} ||= {};\
+            $s2 = $s2->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p2_k');\
+            unless (%$s2) {\
+              $o2 = {};\
+	            $o2->{$_->{name}} = $r->{$_->{col}} for @$f2;\
+              $o1->{'s'} = $o2;\
+              $s2->{o} = $o2;\
+            } \
+            $o2 = $s2->{o};\
           } \
-          $o2 = $s2->{o};\
         } \
         \
         my ($o3, $s3);\
         if ($s1 && $o1) { \
           my $f3 = $fields{'p3_'};\
-          $s3 = $s1->{o3} ||= {};\
-          $s3 = $s3->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p3_tid');\
-          unless (%$s3) {\
-            $o3 = {};\
-	          $o3->{$_->{name}} = $r->{$_->{col}} for @$f3;\
-            push @{$o1->{'t'}}, $o3;\
-            $s3->{o} = $o3;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f3) {\
+            $s3 = $s1->{o3} ||= {};\
+            $s3 = $s3->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p3_tid');\
+            unless (%$s3) {\
+              $o3 = {};\
+	            $o3->{$_->{name}} = $r->{$_->{col}} for @$f3;\
+              push @{$o1->{'t'}}, $o3;\
+              $s3->{o} = $o3;\
+            } \
+            $o3 = $s3->{o};\
           } \
-          $o3 = $s3->{o};\
         } \
           \
         my ($o4, $s4);\
         if ($s3 && $o3) { \
           my $f4 = $fields{'p4_'};\
-          $s4 = $s3->{o4} ||= {};\
-          $s4 = $s4->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p4_xid','p4_x');\
-          unless (%$s4) {\
-            $o4 = {};\
-            $o4->{$_->{name}} = $r->{$_->{col}} for @$f4;\
-            push @{$o3->{'x'}}, $o4;\
-            $s4->{o} = $o4;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f4) {\
+            $s4 = $s3->{o4} ||= {};\
+            $s4 = $s4->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_} } ('p4_xid','p4_x');\
+            unless (%$s4) {\
+              $o4 = {};\
+              $o4->{$_->{name}} = $r->{$_->{col}} for @$f4;\
+              push @{$o3->{'x'}}, $o4;\
+              $s4->{o} = $o4;\
+            } \
+            $o4 = $s4->{o};\
           } \
-          $o4 = $s4->{o};\
         } \
         \
         my ($o5, $s5);\
         if ($s3 && $o3) { \
           my $f5 = $fields{'p5_'};\
-          $s5 = $s3->{o5} ||= {};\
-          $s5 = $s5->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f5;\
-          unless (%$s5) {\
-            $o5 = {};\
-            $o5->{$_->{name}} = $r->{$_->{col}} for @$f5;\
-            push @filter_cbs, sub {\
-              local $_ = $o5;\
-              my $n5 = DBIx::Nesting::_filter('CODE(0x00000000)')->($o5);\
-              $o5 = $n5 if defined $n5;\
-              unshift @{$o3->{'y'}}, $o5;\
-            };\
-            $s5->{o} = $o5;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f5) {\
+            $s5 = $s3->{o5} ||= {};\
+            $s5 = $s5->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f5;\
+            unless (%$s5) {\
+              $o5 = {};\
+              $o5->{$_->{name}} = $r->{$_->{col}} for @$f5;\
+              push @filter_cbs, sub {\
+                local $_ = $o5;\
+                my $n5 = DBIx::Nesting::_filter('CODE(0x00000000)')->($o5);\
+                $o5 = $n5 if defined $n5;\
+                unshift @{$o3->{'y'}}, $o5;\
+              };\
+              $s5->{o} = $o5;\
+            } \
+            $o5 = $s5->{o};\
           } \
-          $o5 = $s5->{o};\
         } \
         \
         my ($o6, $s6);\
         if ($s3 && $o3) { \
           my $f6 = $fields{'p6_'};\
-          $s6 = $s3->{o6} ||= {};\
-          $s6 = $s6->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f6;\
-          unless (%$s6) {\
-            $o6 = {};\
-            $o6->{$_->{name}} = $r->{$_->{col}} for @$f6;\
-            push @{$o3->{'z'}}, $o6;\
-            $s6->{o} = $o6;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f6) {\
+            $s6 = $s3->{o6} ||= {};\
+            $s6 = $s6->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f6;\
+            unless (%$s6) {\
+              $o6 = {};\
+              $o6->{$_->{name}} = $r->{$_->{col}} for @$f6;\
+              push @{$o3->{'z'}}, $o6;\
+              $s6->{o} = $o6;\
+            } \
+            $o6 = $s6->{o};\
           } \
-          $o6 = $s6->{o};\
         } \
         \
         my ($o7, $s7);\
         if ($s6 && $o6) { \
           my $f7 = $fields{'p7_'};\
-          $s7 = $s6->{o7} ||= {};\
-          $s7 = $s7->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f7;\
-          unless (%$s7) {\
-            $o7 = {};\
-            $o7->{$_->{name}} = $r->{$_->{col}} for @$f7;\
-            push @{$o6->{'w'}}, $o7;\
-            $s7->{o} = $o7;\
+          if (grep {defined()} map { $r->{$_->{col}} } @$f7) {\
+            $s7 = $s6->{o7} ||= {};\
+            $s7 = $s7->{(defined()? "D$_" : 'Undef')} ||= {} for map { $r->{$_->{col}} } @$f7;\
+            unless (%$s7) {\
+              $o7 = {};\
+              $o7->{$_->{name}} = $r->{$_->{col}} for @$f7;\
+              push @{$o6->{'w'}}, $o7;\
+              $s7->{o} = $o7;\
+            } \
+            $o7 = $s7->{o};\
           } \
-          $o7 = $s7->{o};\
         } \
       } \
       $_->() for reverse @filter_cbs; \

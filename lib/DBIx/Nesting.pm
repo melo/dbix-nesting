@@ -115,6 +115,11 @@ sub _emit_meta_block {
   $p .= "if ($p_s_var && $p_o_var) { " if $p_s_var && $p_o_var;
   $p .= "my $f_var = \$fields{'$prfx'};" if $prfx;
 
+  ## Skip missing rows: if all fields are null, we skip this row/meta_block
+  $p .= "if (grep {defined()} map ";
+  $p .= $prfx ? "{ $r_var\->{\$_\->{col}} } \@$f_var" : "{ $r_var\->{\$_} } keys \%$r_var";
+  $p .= ') {';
+
   ## Fetch seen data for this block, deal with dynamic key
   $p .= "$s_var = $p_s_var_access\{o$id} ||= {};";
   $p .= "$s_var = $s_var\->{(defined()? \"D\$_\" : 'Undef')} ||= {} for ";
@@ -176,6 +181,9 @@ sub _emit_meta_block {
   ## .. and o_var is set now, so make sure we are using the correct one
   $p .= "$s_var\->{o} = $o_var;}"    # ends the unless (%$s_var)
     . " $o_var = $s_var\->{o};";
+
+  ## Make sure each row really exists
+  $p .= '} ';
 
   ## Make sure parent vars exists: end of block
   $p .= "} " if $p_s_var && $p_o_var;

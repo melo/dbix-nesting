@@ -88,6 +88,7 @@ __DATA__
       { p1_k1 => 3,     p1_k2 => undef, p1_n => "d" },
       { p1_k1 => undef, p1_k2 => undef, p1_n => "u1" },
       { p1_k1 => undef, p1_k2 => undef, p1_n => "u2" },
+      { p1_k1 => undef, p1_k2 => undef, p1_n => undef },
     ]
 
 >+ out
@@ -321,6 +322,82 @@ __DATA__
         x_n => 'x q1',
         x_t => '2011-01-01',
       },
+
+      { p_k => 2,
+        p_n => 'np2',
+
+        s_k => 1,
+        s_n => 'sn p2',
+
+        t_tid => 11,
+
+        z_k => undef,
+        z_n => undef,
+
+        w_k => 6,
+        w_n => 'w6',
+
+        x_q => 1,
+        x_n => 'x q1',
+        x_t => '2011-01-01',
+      },
+
+      { p_k => 2,
+        p_n => 'np2',
+
+        s_k => 1,
+        s_n => 'sn p2',
+
+        t_tid => 12,
+
+        z_k => 1212,
+        z_n => 'tid 12',
+
+        w_k => undef,
+        w_n => undef,
+
+        x_q => undef,
+        x_n => undef,
+        x_t => undef,
+      },
+
+      { p_k => 2,
+        p_n => 'np2',
+
+        s_k => 1,
+        s_n => 'sn p2',
+
+        t_tid => 13,
+
+        z_k => undef,
+        z_n => undef,
+
+        w_k => 6,
+        w_n => 'w6',
+
+        x_q => undef,
+        x_n => undef,
+        x_t => undef,
+      },
+
+      { p_k => 9,
+        p_n => 'np9',
+
+        s_k => 9,
+        s_n => 'sn p9',
+
+        t_tid => undef,
+
+        z_k => 999,
+        z_n => 'z999',
+
+        w_k => 999,
+        w_n => 'w999',
+
+        x_q => 999,
+        x_n => 'x q999',
+        x_t => '2099-09-09',
+      },
     ]
 
 >+ out
@@ -396,7 +473,27 @@ __DATA__
             ],
             x => [{ q => 1, n => 'x q1', t => DateTime->new(year => 2011, month => 1, day => 1) }],
           },
+          { tid => 11,
+            x   => [{ q => 1, n => 'x q1', t => DateTime->new(year => 2011, month => 1, day => 1) }],
+          },
+          { tid => 12,
+            z   => [
+              { k => 1212,
+                n => 'tid 12',
+              },
+            ],
+          },
+          { tid => 13, },
         ],
+      },
+      { m => {
+          k => 9,
+          n => 'np9',
+        },
+        s => {
+          k => 9,
+          n => 'sn p9',
+        },
       },
     ]
 
