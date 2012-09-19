@@ -97,7 +97,8 @@ sub _emit_meta_block {
     $p_s_var_access = '$seen';
   }
 
-  my ($id, $flds, $key, $into, $type, $nest, $prfx, $filter) = @{$meta}{qw(id fields key into type nest prefix filter)};
+  my ($id, $flds, $key, $into, $type, $nest, $prfx, $filter, $builder) =
+    @{$meta}{qw(id fields key into type nest prefix filter builder)};
   my $o_var = "\$o$id";
   my $s_var = "\$s$id";
   my $f_var = "\$f$id";
@@ -152,7 +153,7 @@ sub _emit_meta_block {
   my $rel_p;    ## delay code insertion, decided based on filter presence
   if ($type eq 'multiple') {
     $p_o_var_access = "\@{$p_o_var_access}" unless substr($p_o_var_access, 0, 1) eq '@';
-    $rel_p = $filter ? 'unshift' : 'push';
+    $rel_p = ($filter || $builder) ? 'unshift' : 'push';
     $rel_p .= " $p_o_var_access, $o_var;";
   }
   elsif ($type eq 'single') {
@@ -162,17 +163,19 @@ sub _emit_meta_block {
     die "Unkonwn relation type '$type'";
   }
 
-  ## Filtering
-  if ($filter) {
+  ## Filtering/Building
+  if ($filter || $builder) {
     $stash->{filtering}++;    ## include filter storage and execution code in _emit_code
 
     my $n_var = "\$n$id";
-    $p
-      .= 'push @filter_cbs, sub {'
-      . "local \$_ = $o_var;"
-      . "my $n_var = DBIx::Nesting::_filter('$filter')->($o_var);"
-      . "$o_var = $n_var if defined $n_var;"
-      . $rel_p . '};';
+    $p .= 'push @filter_cbs, sub {' . "local \$_ = $o_var;";
+    if ($filter) {
+      $p .= "DBIx::Nesting::_filter('$filter')->($o_var);";
+    }
+    if ($builder) {
+      $p .= "my $n_var = DBIx::Nesting::_filter('$builder')->($o_var);$o_var = $n_var if defined $n_var;";
+    }
+    $p .= $rel_p . '};';
   }
   else {
     $p .= $rel_p;
@@ -195,8 +198,8 @@ sub _emit_meta_block {
 }
 
 
-################################
-# Meta cleanups and filter cache
+########################################
+# Meta cleanups and filter/builder cache
 
 sub _expand_meta_with_defaults {
   my ($self, $meta, $idx) = @_;
@@ -247,11 +250,10 @@ sub _expand_meta_with_defaults {
   # into elevation
   $cm{into} = $meta->{into} if exists $meta->{into};
 
-  # filters
-  if (exists $meta->{filter}) {
-    my $filter_cb = $meta->{filter};
-    $cm{filter} = _filter(add => $filter_cb);
-
+  # filters && builders
+  for my $type (qw( filter builder )) {
+    next unless exists $meta->{$type};
+    $cm{$type} = _filter(add => $meta->{$type});
   }
 
   # Relation type

@@ -151,16 +151,13 @@ __DATA__
           key  => 'tid',
           nest => {
             z => {
-              nest   => { w => { prefix => 'w' } },
+              nest   => { w => { prefix => 'w', builder => sub { return { W => $_ } } } },
               prefix => 'z',
             },
             x => {
               prefix => 'x',
               key    => 'q',
-              filter => sub {
-                $_->{t} = DateTime::Format::MySQL->parse_date($_->{t});
-                return;
-              },
+              filter => sub {$_->{t} = DateTime::Format::MySQL->parse_date($_->{t})},
             },
           },
           prefix => 't',
@@ -412,7 +409,7 @@ __DATA__
             z   => [
               { k => 1,
                 n => 'z1',
-                w => [{ k => 1, n => 'w1' }, { k => 2, n => 'w2' },],
+                w => [{ W => {k => 1, n => 'w1'} }, { W => {k => 2, n => 'w2'} },],
               },
             ],
             x => [
@@ -430,11 +427,11 @@ __DATA__
             z   => [
               { k => 1,
                 n => 'z1',
-                w => [{ k => 2, n => 'w2' }],
+                w => [{ W => {k => 2, n => 'w2'} }],
               },
               { k => 2,
                 n => 'z2',
-                w => [{ k => 2, n => 'w2' }],
+                w => [{ W => {k => 2, n => 'w2'} }],
               },
             ],
             x => [
@@ -459,7 +456,7 @@ __DATA__
             z   => [
               { k => 4,
                 n => 'z4',
-                w => [{ k => 5, n => 'w5' }],
+                w => [{ W => {k => 5, n => 'w5'} }],
               },
             ],
             x => [{ q => 1, n => 'x q1', t => DateTime->new(year => 2011, month => 1, day => 1) }],
@@ -468,7 +465,7 @@ __DATA__
             z   => [
               { k => 4,
                 n => 'z4',
-                w => [{ k => 6, n => 'w6' }],
+                w => [{ W => {k => 6, n => 'w6'} }],
               },
             ],
             x => [{ q => 1, n => 'x q1', t => DateTime->new(year => 2011, month => 1, day => 1) }],

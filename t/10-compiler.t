@@ -25,7 +25,6 @@ subtest 'code emiter' => sub {
     my $desc = $t->{msg}{desc};
     my $meta = $t->{meta}{data};
     is_string($u->($meta), $t->{expected}{body}, "$desc ok");
-
     my $cb;
     is(exception { $cb = $n->compile($meta) }, undef, "... compiles ok too");
     is(ref($cb), 'CODE', '... outputs CodeRef');
@@ -92,6 +91,26 @@ __DATA__
       filter => Test::Deep::re(qr{^CODE\(0x[0-9a-f]+\)$}),
       type   => 'multiple',
       nest   => {},
+    }
+
+> end
+
+
+> for _expand_meta_with_defaults
+> msg simple meta, single col set, no joins, explicit pk, extra field meta, filter + builder
+>+ meta
+
+    { fields => ['k', n => { label => 'N' }], key => 'k', filter => sub { }, builder => sub { } }
+
+>+ expected
+
+    { fields  => [{ name => 'k', col => 'k' }, { name => 'n', col => 'n', label => 'N' }],
+      key     => [{ name => 'k', col => 'k' }],
+      id      => 1,
+      filter  => Test::Deep::re(qr{^CODE\(0x[0-9a-f]+\)$}),
+      builder => Test::Deep::re(qr{^CODE\(0x[0-9a-f]+\)$}),
+      type    => 'multiple',
+      nest    => {},
     }
 
 > end
@@ -706,7 +725,10 @@ __DATA__
             z => { nest   => { w => {} }, },
             x => { fields => [qw(xid x)] },
             ## real code would use a sub { ... } below but this is easier to test
-            y => { filter => 'CODE(0x00000000)' },
+            y => {
+              filter  => 'CODE(0x00000000)',
+              builder => 'CODE(0x00000001)',
+            },
           },
         },
       },
@@ -802,7 +824,8 @@ __DATA__
               $o5->{$_->{name}} = $r->{$_->{col}} for @$f5;\
               push @filter_cbs, sub {\
                 local $_ = $o5;\
-                my $n5 = DBIx::Nesting::_filter('CODE(0x00000000)')->($o5);\
+                DBIx::Nesting::_filter('CODE(0x00000000)')->($o5);\
+                my $n5 = DBIx::Nesting::_filter('CODE(0x00000001)')->($o5);\
                 $o5 = $n5 if defined $n5;\
                 unshift @{$o3->{'y'}}, $o5;\
               };\
