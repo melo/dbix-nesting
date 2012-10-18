@@ -540,6 +540,7 @@ __DATA__
             } \
             $o2 = $s2->{o};\
           } \
+          else { $o1->{'o'} = [] unless exists $o1->{'o'} } \
         } \
       } \
       return \@res;\
@@ -623,6 +624,7 @@ __DATA__
             } \
             $o2 = $s2->{o};\
           } \
+          else { $o1->{'s'} = [] unless exists $o1->{'s'} } \
         } \
         \
         my ($o3, $s3);\
@@ -639,6 +641,7 @@ __DATA__
             } \
             $o3 = $s3->{o};\
           } \
+          else { $o1->{'t'} = [] unless exists $o1->{'t'} } \
         } \
         \
         my ($o4, $s4);\
@@ -655,6 +658,7 @@ __DATA__
             } \
             $o4 = $s4->{o};\
           } \
+          else { $o3->{'x'} = [] unless exists $o3->{'x'} } \
         } \
         \
         my ($o5, $s5);\
@@ -671,6 +675,7 @@ __DATA__
             } \
             $o5 = $s5->{o};\
           } \
+          else { $o3->{'y'} = [] unless exists $o3->{'y'} } \
         } \
         \
         my ($o6, $s6);\
@@ -687,6 +692,7 @@ __DATA__
             } \
             $o6 = $s6->{o};\
           } \
+          else { $o3->{'z'} = [] unless exists $o3->{'z'} } \
         } \
         \
         my ($o7, $s7);\
@@ -703,6 +709,7 @@ __DATA__
             } \
             $o7 = $s7->{o};\
           } \
+          else { $o6->{'w'} = [] unless exists $o6->{'w'} } \
         } \
       } \
       return \@res;\
@@ -795,6 +802,7 @@ __DATA__
             } \
             $o3 = $s3->{o};\
           } \
+          else { $o1->{'t'} = [] unless exists $o1->{'t'} } \
         } \
           \
         my ($o4, $s4);\
@@ -811,6 +819,7 @@ __DATA__
             } \
             $o4 = $s4->{o};\
           } \
+          else { $o3->{'x'} = [] unless exists $o3->{'x'} } \
         } \
         \
         my ($o5, $s5);\
@@ -833,6 +842,7 @@ __DATA__
             } \
             $o5 = $s5->{o};\
           } \
+          else { $o3->{'y'} = [] unless exists $o3->{'y'} } \
         } \
         \
         my ($o6, $s6);\
@@ -849,6 +859,7 @@ __DATA__
             } \
             $o6 = $s6->{o};\
           } \
+          else { $o3->{'z'} = [] unless exists $o3->{'z'} } \
         } \
         \
         my ($o7, $s7);\
@@ -865,6 +876,7 @@ __DATA__
             } \
             $o7 = $s7->{o};\
           } \
+          else { $o6->{'w'} = [] unless exists $o6->{'w'} } \
         } \
       } \
       $_->() for reverse @filter_cbs; \

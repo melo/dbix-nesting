@@ -85,7 +85,7 @@ sub _emit_code {
 
 sub _emit_meta_block {
   my ($self, $meta, $stash, $p_id, $p_key) = @_;
-  my ($p_o_var, $p_s_var, $p_o_var_access, $p_s_var_access);
+  my ($is_top, $p_o_var, $p_s_var, $p_o_var_access, $p_s_var_access);
   if ($p_id) {
     $p_o_var        = "\$o${p_id}";
     $p_s_var        = "\$s${p_id}";
@@ -93,6 +93,7 @@ sub _emit_meta_block {
     $p_s_var_access = "${p_s_var}\->";
   }
   else {
+    $is_top         = 1;
     $p_o_var_access = '@res';
     $p_s_var_access = '$seen';
   }
@@ -116,7 +117,7 @@ sub _emit_meta_block {
   $p .= "if ($p_s_var && $p_o_var) { " if $p_s_var && $p_o_var;
   $p .= "my $f_var = \$fields{'$prfx'};" if $prfx;
 
-  ## Skip missing rows: if all fields are null, we skip this row/meta_block
+  ## Missing rows: if all fields are null, we most likely have a left join - deal in else below
   $p .= "if (grep {defined()} map ";
   $p .= $prfx ? "{ $r_var\->{\$_\->{col}} } \@$f_var" : "{ $r_var\->{\$_} } keys \%$r_var";
   $p .= ') {';
@@ -152,9 +153,10 @@ sub _emit_meta_block {
   ## per relation-type manipulation
   my $rel_p;    ## delay code insertion, decided based on filter presence
   if ($type eq 'multiple') {
-    $p_o_var_access = "\@{$p_o_var_access}" unless substr($p_o_var_access, 0, 1) eq '@';
+    my $lp_o_var_access = $p_o_var_access;
+    $lp_o_var_access = "\@{$lp_o_var_access}" unless substr($lp_o_var_access, 0, 1) eq '@';
     $rel_p = ($filter || $builder) ? 'unshift' : 'push';
-    $rel_p .= " $p_o_var_access, $o_var;";
+    $rel_p .= " $lp_o_var_access, $o_var;";
   }
   elsif ($type eq 'single') {
     $rel_p = "$p_o_var_access = $o_var;";
@@ -185,8 +187,13 @@ sub _emit_meta_block {
   $p .= "$s_var\->{o} = $o_var;}"    # ends the unless (%$s_var)
     . " $o_var = $s_var\->{o};";
 
-  ## Make sure each row really exists
+  ## End of logic if row really exists...
   $p .= '} ';
+
+  ## ... now take care of left joins
+  if (!$is_top and $type eq 'multiple') {
+    $p .= "else { $p_o_var_access = [] unless exists $p_o_var_access } ";
+  }
 
   ## Make sure parent vars exists: end of block
   $p .= "} " if $p_s_var && $p_o_var;

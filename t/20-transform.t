@@ -140,6 +140,28 @@ __DATA__
 > end
 
 
+> msg two tables implicit prefixes, into on top level, left join
+>+ meta
+
+    { into => 't', nest => { x => {} } }
+
+>+ in
+
+    [
+      { p1_k => 1, p1_n => 'a', p2_k => 1, p2_x => 'x1' },
+      { p1_k => 1, p1_n => 'a', p2_k => 2, p2_x => 'x2' },
+      { p1_k => 2, p1_n => 'b', p2_k => undef, p2_x => undef },
+    ]
+
+>+ out
+
+    [ { t => { k => 1, n => 'a' }, x => [{ k => 1, x => 'x1' }, { k => 2, x => 'x2' }] },
+      { t => { k => 2, n => 'b' }, x => [] },
+    ]
+
+> end
+
+
 > msg complex example for transform
 >+ meta
 
@@ -471,16 +493,19 @@ __DATA__
             x => [{ q => 1, n => 'x q1', t => DateTime->new(year => 2011, month => 1, day => 1) }],
           },
           { tid => 11,
+            z   => [],
             x   => [{ q => 1, n => 'x q1', t => DateTime->new(year => 2011, month => 1, day => 1) }],
           },
           { tid => 12,
             z   => [
               { k => 1212,
                 n => 'tid 12',
+                w => [],
               },
             ],
+            x => [],
           },
-          { tid => 13, },
+          { tid => 13, z => [], x => [] },
         ],
       },
       { m => {
@@ -491,6 +516,7 @@ __DATA__
           k => 9,
           n => 'sn p9',
         },
+        t => [],
       },
     ]
 
